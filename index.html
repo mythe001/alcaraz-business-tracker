@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Alcaraz Business Tracker</title>
 <style>
 /* =========================================================
@@ -274,9 +274,9 @@ table.tx th.amt{text-align:right}
 .setup .card{margin-bottom:16px}
 
 /* Form sheet */
-.overlay{position:fixed;inset:0;background:rgba(8,14,18,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.overlay{position:fixed;top:0;left:0;right:0;height:100%;height:var(--vvh,100dvh);background:rgba(8,14,18,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
 @media (min-width:700px){.overlay{align-items:center;padding:20px}}
-.sheet{background:var(--surface);width:100%;max-width:520px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px))}
+.sheet{background:var(--surface);width:100%;max-width:520px;max-height:92%;overflow:auto;overscroll-behavior:contain;border-radius:18px 18px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px))}
 @media (min-width:700px){.sheet{border-radius:18px}}
 .sheet h2{font-size:1.3rem;font-weight:800;margin-bottom:14px}
 .field{display:block;margin-top:14px}
@@ -956,6 +956,20 @@ function openOverlay(html, centered){
   ov.addEventListener("click", e => { if(e.target === ov && overlayClose) overlayClose("dismiss"); });
   return ov;
 }
+// Keep overlays inside the visible area when the on-screen keyboard is open.
+// Some in-app browsers (Messenger, Facebook) don't shrink the layout viewport,
+// so the sheet would sit behind the keyboard; visualViewport reports the real height.
+if(window.visualViewport){
+  const syncVvh = () => document.documentElement.style.setProperty("--vvh", visualViewport.height + "px");
+  visualViewport.addEventListener("resize", syncVvh);
+  syncVvh();
+}
+// Scroll a focused field into view once the keyboard has finished opening.
+document.addEventListener("focusin", e => {
+  const el = e.target;
+  if(!el.matches || !el.matches(".sheet input:not([type=radio]), .sheet select, .sheet textarea")) return;
+  setTimeout(() => { if(document.activeElement === el) el.scrollIntoView({ block: "center", behavior: "smooth" }); }, 300);
+});
 function closeOverlay(){ document.getElementById("overlayRoot").innerHTML = ""; overlayClose = null; }
 document.addEventListener("keydown", e => { if(e.key === "Escape" && overlayClose) overlayClose("dismiss"); });
 
@@ -1037,7 +1051,10 @@ function openTxForm(tx){
   overlayClose = () => closeOverlay();
   const form = ov.querySelector("#txForm");
   form.addEventListener("submit", e => { e.preventDefault(); saveTx(form, tx); });
-  if(!tx) setTimeout(() => form.amount.focus(), 50);
+  // Autofocus only with a real keyboard. On phones it pops the keyboard over the
+  // form before the user has picked a type/category (and some webviews ignore
+  // inputmode on script-triggered focus, showing a letter keyboard).
+  if(!tx && matchMedia("(hover:hover) and (pointer:fine)").matches) setTimeout(() => form.amount.focus(), 50);
 }
 
 const parseMoney = v => Math.round(parseFloat(String(v).replace(/[,₱\s]/g, "")) * 100) / 100;
