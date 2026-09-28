@@ -2,8 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Alcaraz Business Tracker</title>
+<meta name="theme-color" content="#1B3A6B">
+<meta name="description" content="Free, simple sales and expense tracker for small businesses. By Jesse Alcaraz, CPA.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Biz Tracker">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 /* =========================================================
    DESIGN TOKENS — neutral placeholder styling.
@@ -52,6 +61,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:10
 html,body{margin:0;background:var(--bg);color:var(--text)}
 body{font-family:var(--font);font-size:16px;line-height:1.5}
 button,input,select{font:inherit;color:inherit}
+button,a,.entry,.chip span{-webkit-tap-highlight-color:transparent}
 button{cursor:pointer}
 a{color:var(--brand)}
 :focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:6px}
@@ -228,11 +238,24 @@ table.tx th.amt{text-align:right}
 .entry-main{flex:1;min-width:0}
 .entry-title{font-weight:600}
 .entry-sub{font-size:.84rem;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.entry-sub.transfer{white-space:normal;overflow:visible;text-overflow:clip}
+.entry-sub.transfer .entry-fee{display:block}
 .entry-amt{font-weight:800;white-space:nowrap}
 .entry-amt.sales{color:var(--sales)} .entry-amt.expense{color:var(--expense)} .entry-amt.transfer{color:var(--info)}
 .entry-actions{display:none;white-space:nowrap}
 .entry-actions button{border:0;background:none;color:var(--text-2);font-weight:600;padding:4px 6px;text-decoration:underline;font-size:.85rem}
 @media (min-width:900px){.entry-actions{display:block}}
+
+/* Banners & update bar */
+.banner{display:flex;align-items:center;gap:10px;background:var(--brand-soft);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:10px 10px 10px 14px;margin:0 0 14px;font-size:.9rem}
+.banner > div{flex:1;min-width:0}
+.banner.warn{background:var(--expense-soft)}
+.banner-x{flex:none;width:32px;height:32px;border:0;background:transparent;color:var(--text-2);font-size:1.2rem;border-radius:8px}
+.small-btn{min-height:36px;padding:6px 12px;font-size:.88rem;flex:none}
+.update-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;align-items:center;gap:12px;background:var(--surface);color:var(--text);border:1px solid var(--border-strong);box-shadow:var(--shadow);border-radius:14px;padding:8px 8px 8px 16px;font-weight:600;font-size:.92rem;max-width:92vw}
+@media (min-width:900px){.update-bar{bottom:24px}}
+
+.tip-card{background:var(--info-soft);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;font-size:.92rem;color:var(--text)}
 
 /* Settings groups */
 .theme-seg{width:100%;max-width:320px}
@@ -274,15 +297,31 @@ table.tx th.amt{text-align:right}
 .setup .card{margin-bottom:16px}
 
 /* Form sheet */
-.overlay{position:fixed;inset:0;background:rgba(8,14,18,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.overlay{position:fixed;left:0;right:0;top:var(--vv-top,0px);height:var(--vv-height,100%);background:rgba(8,14,18,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
 @media (min-width:700px){.overlay{align-items:center;padding:20px}}
-.sheet{background:var(--surface);width:100%;max-width:520px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px))}
+.sheet{background:var(--surface);width:100%;max-width:520px;max-height:calc(100% - 12px);overflow:auto;overscroll-behavior:contain;border-radius:18px 18px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px))}
 @media (min-width:700px){.sheet{border-radius:18px}}
 .sheet h2{font-size:1.3rem;font-weight:800;margin-bottom:14px}
 .field{display:block;margin-top:14px}
 .field > span{display:block;font-size:.85rem;font-weight:600;color:var(--text-2);margin-bottom:6px}
 .field input,.field select{width:100%}
 .field input.amount{font-size:1.4rem;font-weight:700}
+
+.line-items{margin-top:14px}
+.line-items-head{display:grid;grid-template-columns:32px minmax(0,1fr) 120px 36px;gap:8px;align-items:center;padding:0 4px 6px;font-size:.8rem;font-weight:700;color:var(--text-2)}
+.line-item{display:grid;grid-template-columns:32px minmax(0,1fr) 120px 36px;gap:8px;align-items:center;margin-bottom:8px}
+.line-item .line-no{text-align:center;color:var(--text-3);font-size:.85rem;font-weight:700}
+.line-item select,.line-item input{width:100%;min-width:0;min-height:44px;padding:10px 10px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface)}
+.line-item input{text-align:right;font-variant-numeric:tabular-nums}
+.line-item .remove-line{width:36px;height:36px;border:0;background:transparent;color:var(--text-3);font-size:1.25rem;border-radius:8px}
+.line-item .remove-line:hover{background:var(--surface-2);color:var(--expense)}
+.line-add{border:0;background:transparent;color:var(--brand);font-weight:700;padding:6px 4px;margin-top:0}
+.line-total{display:flex;justify-content:flex-end;align-items:baseline;gap:12px;border-top:2px solid var(--border-strong);padding:12px 4px 0;margin-top:4px;font-weight:800}
+.line-total .value{font-size:1.15rem}
+@media(max-width:699px){
+  .line-items-head,.line-item{grid-template-columns:28px minmax(0,1fr) 108px 34px;gap:6px}
+  .line-item select,.line-item input{padding:9px 8px}
+}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip input{position:absolute;opacity:0;pointer-events:none}
 .chip span{display:inline-block;padding:8px 14px;border-radius:99px;border:1px solid var(--border-strong);background:var(--surface);font-weight:600;font-size:.93rem;cursor:pointer}
@@ -321,7 +360,7 @@ table.tx th.amt{text-align:right}
 </head>
 <body>
 <div id="app"></div>
-<input type="file" id="restoreFile" accept=".json,application/json" class="sr-only" tabindex="-1" aria-hidden="true">
+<input type="file" id="restoreFile" class="sr-only" tabindex="-1" aria-hidden="true">
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div id="overlayRoot"></div>
 
@@ -333,7 +372,10 @@ const CONFIG = {
   appName: "Alcaraz Business Tracker",
   tagline: "Simple numbers tracking for small businesses",
   author: "Jesse Alcaraz",
-  version: "0.5.3",
+  version: "0.6.1",
+  // Shown once in the update notice after each new version. Leave "" to show only the safety message.
+  releaseNote: "Clearer install steps for your browser, and friendlier backup tips.",
+  backupReminderDays: 14,
   beta: true, // shows the "Public Beta" badge
   gcashQr: "gcash-qr.png", // image file uploaded alongside index.html
   links: {
@@ -351,6 +393,7 @@ const CONFIG = {
 const Store = (() => {
   const KEY = "alcaraz-business-tracker-v1";
   const THEME_KEY = "alcaraz-business-tracker-theme";
+  const VERSION_KEY = "alcaraz-business-tracker-seen-version";
 
   const adapter = {
     async load(){
@@ -389,7 +432,14 @@ const Store = (() => {
     const pmOk = d.paymentMethods.every(p => p && typeof p.id==="string" && typeof p.name==="string");
     const txOk = d.transactions.every(t => {
       if(!t || typeof t.id!=="string" || !/^\d{4}-\d{2}-\d{2}$/.test(t.date) || typeof t.amount!=="number" || !isFinite(t.amount)) return false;
-      if(t.type==="sales" || t.type==="expense") return typeof t.categoryId==="string" && typeof t.paymentMethodId==="string";
+      if(t.type==="sales" || t.type==="expense"){
+        if(typeof t.paymentMethodId!=="string") return false;
+        if(t.lines !== undefined){
+          return Array.isArray(t.lines) && t.lines.length > 0
+            && t.lines.every(l => l && typeof l.categoryId==="string" && typeof l.amount==="number" && isFinite(l.amount));
+        }
+        return typeof t.categoryId==="string";
+      }
       if(t.type==="transfer") return typeof t.fromPaymentMethodId==="string" && typeof t.toPaymentMethodId==="string"
         && (t.fee===undefined || (typeof t.fee==="number" && isFinite(t.fee) && t.fee>=0));
       return false;
@@ -414,6 +464,17 @@ const Store = (() => {
       d.meta.bankChargeCategoryId = c.id;
       d.meta.bankChargesSeeded = true;
     }
+    // Transaction line-item upgrade: preserve existing single-line transactions.
+    d.transactions.forEach(t => {
+      if((t.type === "sales" || t.type === "expense") && !Array.isArray(t.lines)){
+        t.lines = [{ categoryId: t.categoryId, amount: t.amount }];
+      }
+      if((t.type === "sales" || t.type === "expense") && Array.isArray(t.lines)){
+        t.amount = Math.round(t.lines.reduce((sum, line) => sum + (Number(line.amount) || 0), 0) * 100) / 100;
+        if(!t.categoryId && t.lines[0]) t.categoryId = t.lines[0].categoryId;
+      }
+    });
+    d.schemaVersion = 2;
     return d;
   }
 
@@ -471,7 +532,9 @@ const Store = (() => {
     usageCount(listName, id){
       if(listName === "paymentMethods")
         return data.transactions.filter(t => t.paymentMethodId === id || t.fromPaymentMethodId === id || t.toPaymentMethodId === id).length;
-      return data.transactions.filter(t => t.categoryId === id || (t.fee > 0 && t.feeCategoryId === id)).length;
+      return data.transactions.filter(t => Array.isArray(t.lines)
+        ? t.lines.some(line => line.categoryId === id) || (t.fee > 0 && t.feeCategoryId === id)
+        : t.categoryId === id || (t.fee > 0 && t.feeCategoryId === id)).length;
     },
     // Bank charges on transfers are counted as an expense under this category (created on first use)
     ensureBankChargeCategory(){
@@ -499,6 +562,12 @@ const Store = (() => {
     },
     parseBackup(d){ return isValid(d) ? d : null; },
 
+    markBackup(){ data.meta.lastBackupAt = new Date().toISOString(); return commit(); },
+
+    // Last app version this device has seen (for the one-time update notice)
+    getSeenVersion(){ try{ return localStorage.getItem(VERSION_KEY); }catch(e){ return null; } },
+    setSeenVersion(v){ try{ localStorage.setItem(VERSION_KEY, v); }catch(e){} },
+
     // Appearance preference (per device). Light is the default.
     getTheme(){ try{ return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light"; }catch(e){ return "light"; } },
     setTheme(theme){ try{ localStorage.setItem(THEME_KEY, theme); }catch(e){} }
@@ -515,6 +584,113 @@ function applyTheme(theme){
 applyTheme(Store.getTheme()); // before first render, so there is no flash
 
 /* =========================================================
+   INSTALLABLE APP (PWA)
+   ========================================================= */
+const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+const isInAppBrowser = /FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|Line\//i.test(navigator.userAgent);
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+let installPrompt = null;      // Chrome/Edge/Android install event
+let swWaiting = null;          // a new version waiting to take over
+let refreshRequested = false;  // only reload when the user tapped "Refresh"
+const session = { hideInApp: false, hideInstall: false, hideBackup: false, noticeShown: false };
+
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installPrompt = e; if(typeof render === "function" && Store.get()) render(); });
+window.addEventListener("appinstalled", () => { installPrompt = null; toast("App installed."); render(); });
+
+function detectBrowser(){
+  const ua = navigator.userAgent;
+  if(isIOS) return "ios";
+  if(/Android/i.test(ua)) return "android";
+  if(/Edg\//.test(ua)) return "edge";
+  if(/Firefox\//.test(ua)) return "firefox";
+  if(/Safari\//.test(ua) && !/Chrome|Chromium/.test(ua)) return "safari";
+  return "chrome"; // Chrome, Brave and other Chromium browsers
+}
+const INSTALL_STEPS = {
+  chrome:  "Click the <b>install icon</b> at the right end of the address bar, or open the menu <b>⋮</b> → <b>Cast, save, and share</b> → <b>Install page as app</b>.",
+  edge:    "Open the menu <b>•••</b> → <b>Apps</b> → <b>Install this site as an app</b>.",
+  safari:  "In the menu bar, choose <b>File</b> → <b>Add to Dock</b>.",
+  ios:     "In Safari, tap the <b>Share</b> button, then <b>Add to Home Screen</b>.",
+  android: "In Chrome, open the menu <b>⋮</b> → <b>Install app</b> (or <b>Add to Home screen</b>).",
+  firefox: "Firefox can't install apps, but the tracker still works offline in this tab after your first visit. Bookmark this page so it's easy to open."
+};
+function installCardHtml(){
+  const notes = `<p class="muted small" style="margin:10px 0 0">Once opened, it works without internet.<br>Your data belongs to this browser, so use the same browser each time.</p>`;
+  if(isStandalone()) return `<p style="margin:0"><b>Installed ✓</b></p><p class="muted small" style="margin:4px 0 0">You're using the installed app. It works even without internet.</p>`;
+  if(isInAppBrowser) return `<p style="margin:0"><b>Install the app</b></p><p class="muted small" style="margin:4px 0 0">Open this page in Chrome or Safari first. Facebook and Messenger's built-in browser can't install apps.</p>`;
+  const key = detectBrowser();
+  const steps = `<p class="muted small" style="margin:4px 0 0">${INSTALL_STEPS[key]}</p>`;
+  if(installPrompt) return `<p style="margin:0 0 4px"><b>Install the app</b></p><p class="muted small" style="margin:0 0 12px">Get an app icon that opens in its own window and works without internet.</p><button class="btn primary" data-action="installApp">Install app</button>
+    <p class="muted small" style="margin:12px 0 0">If the button doesn't work: ${INSTALL_STEPS[key]}</p>${notes}`;
+  return `<p style="margin:0"><b>${key === "firefox" ? "Use it offline" : "Install the app"}</b></p>${steps}${notes}`;
+}
+
+// Banners shown at the top of every page (most important first)
+function topBanners(){
+  const out = [];
+  if(isInAppBrowser && !session.hideInApp){
+    out.push(`<div class="banner warn" role="status"><div><b>You're inside Facebook's browser.</b> Open this page in Chrome or Safari to install the app and keep your data safe. Tap <b>⋮</b> or <b>•••</b> above, then <b>Open in browser</b>.</div><button class="banner-x" data-action="hideBanner" data-b="hideInApp" aria-label="Dismiss">×</button></div>`);
+  } else if(installPrompt && !isStandalone() && !session.hideInstall && ui.view === "dashboard" && Store.get().transactions.length){
+    out.push(`<div class="banner" role="status"><div><b>Install the app</b> for a home-screen icon that works without internet.</div><button class="btn primary small-btn" data-action="installApp">Install</button><button class="banner-x" data-action="hideBanner" data-b="hideInstall" aria-label="Dismiss">×</button></div>`);
+  }
+  if(ui.view === "dashboard" && needsBackupReminder() && !session.hideBackup){
+    out.push(`<div class="banner" role="status"><div><b>Time for a backup.</b> ${esc(lastBackupText())}. Save a copy to Google Drive so you don't lose your records.</div><button class="btn primary small-btn" data-action="backup">Back up</button><button class="banner-x" data-action="hideBanner" data-b="hideBackup" aria-label="Dismiss">×</button></div>`);
+  }
+  return out.join("");
+}
+
+function showUpdateBar(){
+  if(document.getElementById("updateBar")) return;
+  const bar = document.createElement("div");
+  bar.id = "updateBar"; bar.className = "update-bar"; bar.setAttribute("role", "status");
+  bar.innerHTML = `<span>New version available.</span><button class="btn primary small-btn" id="updateNow">Refresh</button>`;
+  document.body.appendChild(bar);
+  bar.querySelector("#updateNow").addEventListener("click", () => {
+    refreshRequested = true;
+    if(swWaiting) swWaiting.postMessage("skipWaiting"); else location.reload();
+  });
+}
+
+function registerServiceWorker(){
+  if(!("serviceWorker" in navigator) || location.protocol === "file:") return;
+  // The version in the URL makes each release install as an update
+  navigator.serviceWorker.register(`sw.js?v=${encodeURIComponent(CONFIG.version)}`).then(reg => {
+    const watch = w => w && w.addEventListener("statechange", () => {
+      if(w.state === "installed" && navigator.serviceWorker.controller){ swWaiting = w; showUpdateBar(); }
+    });
+    if(reg.waiting && navigator.serviceWorker.controller){ swWaiting = reg.waiting; showUpdateBar(); }
+    reg.addEventListener("updatefound", () => watch(reg.installing));
+    // Check for updates when the app comes back to the foreground
+    document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible") reg.update().catch(() => {}); });
+  }).catch(() => {});
+  // First install also fires this event; reload only for a user-requested update
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if(refreshRequested){ refreshRequested = false; location.reload(); } });
+}
+
+// Ask the browser to protect saved data from automatic cleanup (no prompt in Chrome/Safari)
+function requestPersistentStorage(){
+  if(!navigator.storage || !navigator.storage.persist || /Firefox/.test(navigator.userAgent)) return;
+  navigator.storage.persisted().then(p => { if(!p) navigator.storage.persist().catch(() => {}); }).catch(() => {});
+}
+
+// One-time notice after an update: data is safe, backup recommended
+async function showUpdateNotice(){
+  const d = Store.get();
+  const seen = Store.getSeenVersion();
+  Store.setSeenVersion(CONFIG.version);
+  if(!d.setupDone || !d.transactions.length || seen === CONFIG.version) return false;
+  session.noticeShown = true;
+  const body = [
+    ...(CONFIG.releaseNote ? [`What's new: ${CONFIG.releaseNote}`] : []),
+    "Your transactions and settings are safe and still here.",
+    "For extra safety, we recommend making a backup now. It only takes a few seconds."
+  ];
+  const r = await showDialog({ title: "The tracker has been updated ✨", body, primaryLabel: "Back up now", secondaryLabel: "Later" });
+  if(r === "primary") Actions.backup();
+  return true;
+}
+
+/* =========================================================
    CALC — all numbers shown in the app come from here
    ========================================================= */
 const Calc = {
@@ -529,7 +705,11 @@ const Calc = {
         return;
       }
       if(t.type === "sales") sales += t.amount; else expenses += t.amount;
-      byCat[t.categoryId] = (byCat[t.categoryId] || 0) + t.amount;
+      if(Array.isArray(t.lines)){
+        t.lines.forEach(line => { byCat[line.categoryId] = (byCat[line.categoryId] || 0) + line.amount; });
+      } else {
+        byCat[t.categoryId] = (byCat[t.categoryId] || 0) + t.amount;
+      }
     });
     return { sales, expenses, net: sales - expenses, count: txs.length, byCat };
   },
@@ -764,18 +944,21 @@ const Views = {
 
     const entry = t => {
       const isT = t.type === "transfer";
-      const title = isT ? "Transfer" : `${t.type === "sales" ? "Sale" : "Expense"} · ${esc(catById(t.categoryId)?.name || "(removed category)")}`;
+      const lineCount = Array.isArray(t.lines) ? t.lines.length : 1;
+      const title = isT ? "Transfer" : `${t.type === "sales" ? "Sale" : "Expense"} · ${lineCount > 1 ? `${lineCount} items` : esc(catById(t.lines?.[0]?.categoryId || t.categoryId)?.name || "(removed category)")}`;
       const method = isT ? `${esc(pmName(t.fromPaymentMethodId))} → ${esc(pmName(t.toPaymentMethodId))}` : esc(pmName(t.paymentMethodId));
-      const extra = [t.description ? esc(t.description) : "", isT && t.fee > 0 ? `Bank charge ${peso(t.fee)}` : ""].filter(Boolean).join(" · ");
+      const extra = t.description ? esc(t.description) : "";
+      const transferFee = isT && t.fee > 0 ? `<span class="entry-fee">Bank charge ${peso(t.fee)}</span>` : "";
+      const displayAmount = isT ? t.amount + (t.fee || 0) : t.amount;
       const sign = t.type === "sales" ? "+" : t.type === "expense" ? "−" : "";
       const mark = { sales: "+", expense: "−", transfer: "⇄" }[t.type];
       return `<div class="entry" data-action="editTx" data-id="${t.id}" role="button" tabindex="0" aria-label="Edit ${isT ? "transfer" : title}">
         <span class="entry-mark ${t.type}" aria-hidden="true">${mark}</span>
         <div class="entry-main">
           <div class="entry-title">${title}</div>
-          <div class="entry-sub">${method}${extra ? ` · ${extra}` : ""}</div>
+          <div class="entry-sub ${isT ? "transfer" : ""}">${method}${extra ? ` · ${extra}` : ""}${transferFee}</div>
         </div>
-        <div class="entry-amt num ${t.type}">${sign}${peso(t.amount)}</div>
+        <div class="entry-amt num ${t.type}">${sign}${peso(displayAmount)}</div>
         <div class="entry-actions"><button data-action="editTx" data-id="${t.id}">Edit</button><button data-action="deleteTx" data-id="${t.id}">Delete</button></div>
       </div>`;
     };
@@ -883,12 +1066,24 @@ const Views = {
 
       <div class="settings-group">
         <div class="group-label">Your Data</div>
+        <div class="tip-card">
+          <p style="margin:0 0 4px"><b>💡 Tip: Keep your backup safe</b></p>
+          <p style="margin:0">Your data is stored on this device. To avoid losing your records, regularly make a backup and save it somewhere safe — Google Drive is recommended so you can access your backup even if something happens to your device.</p>
+        </div>
         <section class="card list-card">
-          <button class="list-row" data-action="backup"><span><b>Backup Data</b><small>Download a copy of everything (.json)</small></span><span aria-hidden="true">›</span></button>
-          <button class="list-row" data-action="restore"><span><b>Restore Data</b><small>Load a backup file</small></span><span aria-hidden="true">›</span></button>
+          <button class="list-row" data-action="backup"><span><b>Back up to Google Drive</b><small>${esc(lastBackupText())} · or save the file anywhere you like</small></span><span aria-hidden="true">›</span></button>
+          <button class="list-row" data-action="restore"><span><b>Restore Data</b><small>Pick your latest backup, e.g. from Google Drive</small></span><span aria-hidden="true">›</span></button>
           <button class="list-row" data-action="exportCsv"><span><b>Export Transactions</b><small>Open in Excel or Google Sheets (.csv)</small></span><span aria-hidden="true">›</span></button>
         </section>
-        <p class="muted small" style="margin:0">Your data is saved in this browser on this device. Back it up regularly so you don't lose it if you clear your browser or change devices.</p>
+        <p class="muted small" style="margin:0">${isTouchDevice()
+          ? "To back up: tap <b>Back up to Google Drive</b>, choose <b>Drive</b>, then <b>Save</b>."
+          : "To back up: save the file into your Google Drive folder, or upload it at drive.google.com."}
+          On another device, tap <b>Restore Data</b> and pick your latest backup. Restoring replaces the data on that device.</p>
+      </div>
+
+      <div class="settings-group">
+        <div class="group-label">App</div>
+        <section class="card">${installCardHtml()}</section>
       </div>
 
       <div class="settings-group about">
@@ -937,7 +1132,7 @@ function render(){
     </aside>
     <div>
       <header class="topbar"><span class="brand-name">${esc(CONFIG.appName)}</span>${CONFIG.beta ? `<span class="beta">Public Beta</span>` : ""}</header>
-      <main id="main">${Views[ui.view]()}</main>
+      <main id="main">${topBanners()}${Views[ui.view]()}</main>
     </div>
   </div>
   <nav class="bottomnav" aria-label="Main navigation"><div class="in">${bottom}</div></nav>
@@ -956,6 +1151,28 @@ function openOverlay(html, centered){
   ov.addEventListener("click", e => { if(e.target === ov && overlayClose) overlayClose("dismiss"); });
   return ov;
 }
+// Mobile keyboards cover fixed-position content in many browsers (incl. Messenger's).
+// Track the visible viewport so the form sheet always sits above the keyboard.
+function syncViewport(){
+  const vv = window.visualViewport;
+  const root = document.documentElement.style;
+  if(!vv){ root.removeProperty("--vv-height"); root.removeProperty("--vv-top"); return; }
+  root.setProperty("--vv-height", vv.height + "px");
+  root.setProperty("--vv-top", vv.offsetTop + "px");
+}
+if(window.visualViewport){
+  window.visualViewport.addEventListener("resize", syncViewport);
+  window.visualViewport.addEventListener("scroll", syncViewport);
+}
+syncViewport();
+
+// Keep the field being typed in visible once the keyboard has opened
+document.addEventListener("focusin", e => {
+  const el = e.target;
+  if(!el.closest || !el.closest(".sheet") || !el.matches("input, select, textarea")) return;
+  setTimeout(() => { syncViewport(); el.scrollIntoView({ block: "center", behavior: "smooth" }); }, 300);
+});
+
 function closeOverlay(){ document.getElementById("overlayRoot").innerHTML = ""; overlayClose = null; }
 document.addEventListener("keydown", e => { if(e.key === "Escape" && overlayClose) overlayClose("dismiss"); });
 
@@ -990,6 +1207,54 @@ function pmChips(name, selectedId, label){
     ${Store.get().paymentMethods.map(p => `<label class="chip"><input type="radio" name="${name}" value="${p.id}" ${p.id === selectedId ? "checked" : ""}><span>${esc(p.name)}</span></label>`).join("")}
   </div>`;
 }
+function lineRows(tx){
+  if(tx && tx.type !== "transfer"){
+    if(Array.isArray(tx.lines) && tx.lines.length) return tx.lines;
+    if(tx.categoryId) return [{ categoryId: tx.categoryId, amount: tx.amount || 0 }];
+  }
+  return [{ categoryId: "", amount: 0 }];
+}
+function lineRowHtml(line, index, type){
+  return `<div class="line-item" data-line-row>
+    <span class="line-no">${index + 1}</span>
+    <select name="lineCategory" aria-label="Category for line ${index + 1}">${categoryOptions(type, line.categoryId || "")}</select>
+    <input name="lineAmount" inputmode="decimal" autocomplete="off" placeholder="0.00" value="${line.amount ? Number(line.amount).toFixed(2) : ""}" aria-label="Amount for line ${index + 1}">
+    <button type="button" class="remove-line" data-remove-line aria-label="Remove line ${index + 1}">×</button>
+  </div>`;
+}
+function lineItemsHtml(tx, type){
+  const rows = lineRows(tx);
+  return `<div class="line-items" id="lineItems">
+    <div class="line-items-head"><span>#</span><span>Category</span><span style="text-align:right">Amount</span><span></span></div>
+    <div id="lineRows">${rows.map((line, i) => lineRowHtml(line, i, type)).join("")}</div>
+    <button type="button" class="line-add" data-add-line>＋ Add Line</button>
+    <div class="line-total"><span>Total</span><span class="value num" id="lineTotal">₱0.00</span></div>
+  </div>`;
+}
+function refreshLineNumbers(form){
+  form.querySelectorAll("#lineRows [data-line-row]").forEach((row, i) => {
+    row.querySelector(".line-no").textContent = i + 1;
+    row.querySelector(".remove-line").setAttribute("aria-label", `Remove line ${i + 1}`);
+    row.querySelector("[name=lineCategory]").setAttribute("aria-label", `Category for line ${i + 1}`);
+    row.querySelector("[name=lineAmount]").setAttribute("aria-label", `Amount for line ${i + 1}`);
+  });
+}
+function updateLineTotal(form){
+  const total = [...form.querySelectorAll("[name=lineAmount]")].reduce((sum, input) => sum + (parseMoney(input.value) || 0), 0);
+  const el = form.querySelector("#lineTotal");
+  if(el) el.textContent = peso(total);
+  return Math.round(total * 100) / 100;
+}
+function addLineRow(form){
+  const type = formType === "transfer" ? "expense" : formType;
+  const rows = form.querySelector("#lineRows");
+  const index = rows.querySelectorAll("[data-line-row]").length;
+  rows.insertAdjacentHTML("beforeend", lineRowHtml({ categoryId: "", amount: 0 }, index, type));
+  refreshLineNumbers(form);
+  updateLineTotal(form);
+  const inputs = rows.querySelectorAll("[name=lineCategory]");
+  if(inputs.length) inputs[inputs.length - 1].focus();
+}
 function openTxForm(tx){
   const d = Store.get();
   if(tx) formType = tx.type;
@@ -1017,11 +1282,11 @@ function openTxForm(tx){
     </div>
     <label class="field"><span>Date</span><input type="date" name="date" value="${esc(tx ? tx.date : todayISO())}" required></label>
     <div id="grpRegular" class="${isT ? "hidden" : ""}">
-      <label class="field"><span>Category</span><select name="categoryId" id="fCategory">${categoryOptions(isT ? "sales" : formType, regular ? regular.categoryId : "")}</select></label>
+      <div class="field"><span>Line Items</span>${lineItemsHtml(regular, formType)}</div>
       <div class="field"><span>Mode of Payment</span>${pmChips("paymentMethodId", pmSel, "Mode of Payment")}</div>
     </div>
     <div id="grpTransfer" class="${isT ? "" : "hidden"}">${transferFields}</div>
-    <label class="field"><span>Amount (₱)</span><input class="amount num" name="amount" inputmode="decimal" autocomplete="off" placeholder="0.00" value="${tx ? tx.amount.toFixed(2) : ""}" required></label>
+    <div id="grpTransferAmount" class="field ${isT ? "" : "hidden"}"><span>Amount (₱)</span><input class="amount num" name="amount" inputmode="decimal" autocomplete="off" placeholder="0.00" value="${transfer ? transfer.amount.toFixed(2) : ""}"></div>
     <label class="field ${isT ? "" : "hidden"}" id="grpFee"><span>Bank charge (₱) — optional</span>
       <input name="fee" inputmode="decimal" autocomplete="off" placeholder="0.00" value="${transfer && transfer.fee > 0 ? transfer.fee.toFixed(2) : ""}">
       <div class="hint">Deducted from the "From" account and counted as an expense under Bank Charges.</div>
@@ -1037,7 +1302,21 @@ function openTxForm(tx){
   overlayClose = () => closeOverlay();
   const form = ov.querySelector("#txForm");
   form.addEventListener("submit", e => { e.preventDefault(); saveTx(form, tx); });
-  if(!tx) setTimeout(() => form.amount.focus(), 50);
+  form.addEventListener("input", e => { if(e.target.name === "lineAmount") updateLineTotal(form); });
+  form.addEventListener("click", e => {
+    const add = e.target.closest("[data-add-line]");
+    if(add){ addLineRow(form); return; }
+    const remove = e.target.closest("[data-remove-line]");
+    if(remove){
+      const rows = form.querySelectorAll("#lineRows [data-line-row]");
+      if(rows.length <= 1){ toast("Keep at least one line."); return; }
+      remove.closest("[data-line-row]").remove();
+      refreshLineNumbers(form); updateLineTotal(form);
+    }
+  });
+  refreshLineNumbers(form);
+  updateLineTotal(form);
+  if(!tx && isT && window.matchMedia("(pointer: fine)").matches) setTimeout(() => form.amount.focus(), 50);
 }
 
 const parseMoney = v => Math.round(parseFloat(String(v).replace(/[,₱\s]/g, "")) * 100) / 100;
@@ -1045,18 +1324,18 @@ const parseMoney = v => Math.round(parseFloat(String(v).replace(/[,₱\s]/g, "")
 async function saveTx(form, tx){
   const err = msg => { form.querySelector("#formErr").textContent = msg; };
   const date = form.date.value;
-  const amount = parseMoney(form.amount.value);
   const description = form.description.value.trim().slice(0, 140);
   const checked = name => form.querySelector(`input[name="${name}"]:checked`)?.value;
 
   if(!/^\d{4}-\d{2}-\d{2}$/.test(date)) return err("Please choose a date.");
 
-  let payload;
+  let payload, amount = 0;
   if(formType === "transfer"){
     if(Store.get().paymentMethods.length < 2) return err("Add at least two payment methods in Settings to record a transfer.");
     const from = checked("fromPm"), to = checked("toPm");
     if(!from || !to) return err("Please choose where the money is coming from and going to.");
     if(from === to) return err("From and To must be different payment methods.");
+    amount = parseMoney(form.amount.value);
     if(!(amount > 0)) return err("Please enter an amount greater than zero.");
     const feeRaw = form.fee.value.trim();
     const fee = feeRaw ? parseMoney(feeRaw) : 0;
@@ -1064,12 +1343,17 @@ async function saveTx(form, tx){
     payload = { date, type: "transfer", fromPaymentMethodId: from, toPaymentMethodId: to, amount, fee, description };
     if(fee > 0) payload.feeCategoryId = Store.ensureBankChargeCategory();
   } else {
-    const categoryId = form.categoryId.value;
     const pm = checked("paymentMethodId");
-    if(!categoryId) return err("Please choose a category.");
     if(!pm) return err("Please choose a mode of payment.");
-    if(!(amount > 0)) return err("Please enter an amount greater than zero.");
-    payload = { date, type: formType, categoryId, paymentMethodId: pm, amount, description };
+    const lines = [...form.querySelectorAll("#lineRows [data-line-row]")].map(row => ({
+      categoryId: row.querySelector("[name=lineCategory]").value,
+      amount: parseMoney(row.querySelector("[name=lineAmount]").value)
+    }));
+    if(lines.some(line => !line.categoryId)) return err("Please choose a category for every line.");
+    if(lines.some(line => !(line.amount > 0))) return err("Please enter an amount greater than zero for every line.");
+    amount = Math.round(lines.reduce((sum, line) => sum + line.amount, 0) * 100) / 100;
+    if(!(amount > 0)) return err("Please enter at least one line item.");
+    payload = { date, type: formType, categoryId: lines[0].categoryId, paymentMethodId: pm, amount, lines, description };
   }
 
   if(tx) await Store.updateTransaction(tx.id, payload);
@@ -1129,6 +1413,7 @@ const MESSAGES = [
 ];
 
 async function checkMilestones(){
+  if(session.noticeShown) return;
   const d = Store.get();
   if(document.getElementById("overlayRoot").innerHTML) return;
   if(daysSince(d.meta.lastModalAt) < CONFIG.modalCooldownDays) return;
@@ -1189,6 +1474,62 @@ async function offerFile(filename, data, mime){
   }catch(e){ toast("Download isn't available here."); return false; }
 }
 
+function backupFileName(ext){
+  const d = new Date();
+  return `Business Tracker backup ${todayISO()} ${pad(d.getHours())}${pad(d.getMinutes())}.${ext}`;
+}
+const isTouchDevice = () => window.matchMedia("(pointer: coarse)").matches;
+
+// Returns "shared" | "saved" | "downloaded", or false if cancelled/failed
+async function saveBackup(){
+  const data = Store.exportData();
+
+  // Phones: open the share menu so the user can pick Google Drive.
+  // Chrome only shares certain file types, so fall back from .json to .txt (same contents).
+  if(isTouchDevice() && navigator.canShare && navigator.share){
+    for(const [ext, type] of [["json", "application/json"], ["txt", "text/plain"]]){
+      const file = new File([data], backupFileName(ext), { type });
+      if(!navigator.canShare({ files: [file] })) continue;
+      try{
+        await navigator.share({ files: [file], title: "Business Tracker backup" });
+        return "shared";
+      }catch(e){
+        if(e && e.name === "AbortError") return false; // user closed the share menu
+        break; // sharing failed; fall back to download below
+      }
+    }
+  }
+
+  // Chrome/Edge on computers: "Save as" window, so it can go straight into a Google Drive folder
+  if(!isTouchDevice() && window.showSaveFilePicker){
+    try{
+      const handle = await window.showSaveFilePicker({
+        suggestedName: backupFileName("json"),
+        types: [{ description: "Business Tracker backup", accept: { "application/json": [".json"] } }]
+      });
+      const w = await handle.createWritable(); await w.write(data); await w.close();
+      return "saved";
+    }catch(e){
+      if(e && e.name === "AbortError") return false;
+      // not allowed here (e.g. inside a frame): fall back to download
+    }
+  }
+
+  const ok = await offerFile(backupFileName("json"), data, "application/json");
+  return ok ? "downloaded" : false;
+}
+
+function lastBackupText(){
+  const at = Store.get().meta.lastBackupAt;
+  return at ? `Last backup: ${new Date(at).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" })}` : "No backup yet";
+}
+function needsBackupReminder(){
+  const d = Store.get();
+  if(!d.transactions.length) return false;
+  const since = d.meta.lastBackupAt || d.meta.firstUsedAt;
+  return daysSince(since) >= CONFIG.backupReminderDays;
+}
+
 function buildCsv(){
   const cell = v => { const s = String(v ?? ""); return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const rows = [["Date","Type","Category","Mode of Payment","Description","Amount"]];
@@ -1199,7 +1540,11 @@ function buildCsv(){
       if(t.fee > 0) rows.push([t.date, "Expense", catById(t.feeCategoryId)?.name || "Bank Charges", from, "Bank charge on transfer", t.fee.toFixed(2)]);
       return;
     }
-    rows.push([t.date, t.type === "sales" ? "Sales" : "Expense", catById(t.categoryId)?.name || "", pmById(t.paymentMethodId)?.name || "", t.description || "", t.amount.toFixed(2)]);
+    if(Array.isArray(t.lines)){
+      t.lines.forEach(line => rows.push([t.date, t.type === "sales" ? "Sales" : "Expense", catById(line.categoryId)?.name || "", pmById(t.paymentMethodId)?.name || "", t.description || "", Number(line.amount || 0).toFixed(2)]));
+    } else {
+      rows.push([t.date, t.type === "sales" ? "Sales" : "Expense", catById(t.categoryId)?.name || "", pmById(t.paymentMethodId)?.name || "", t.description || "", t.amount.toFixed(2)]);
+    }
   });
   return "\ufeff" + rows.map(r => r.map(cell).join(",")).join("\r\n");
 }
@@ -1233,8 +1578,12 @@ const Actions = {
     form.querySelectorAll('[data-action="formType"]').forEach(b => b.classList.toggle("on", b.dataset.v === formType));
     form.querySelector("#grpRegular").classList.toggle("hidden", isT);
     form.querySelector("#grpTransfer").classList.toggle("hidden", !isT);
+    form.querySelector("#grpTransferAmount").classList.toggle("hidden", !isT);
     form.querySelector("#grpFee").classList.toggle("hidden", !isT);
-    if(!isT && prev !== formType) form.querySelector("#fCategory").innerHTML = categoryOptions(formType, "");
+    if(!isT && prev !== formType){
+      form.querySelectorAll('[name="lineCategory"]').forEach(select => { select.innerHTML = categoryOptions(formType, ""); });
+      updateLineTotal(form);
+    }
     form.querySelector("#formErr").textContent = "";
   },
   async addItem(el){
@@ -1263,8 +1612,12 @@ const Actions = {
   },
   async startTracking(){ await Store.completeSetup(); ui.view = "dashboard"; render(); window.scrollTo(0, 0); },
   async backup(){
-    const ok = await offerFile(`alcaraz-business-tracker-backup-${todayISO()}.json`, Store.exportData(), "application/json");
-    if(ok) toast("Backup downloaded.");
+    const how = await saveBackup();
+    if(!how) return;
+    await Store.markBackup(); render();
+    // Plain downloads get no message: the browser's own save window/download bar
+    // appears after the click, and a message here would pop up before it.
+    if(how !== "downloaded") toast("✅ Backup saved.");
   },
   restore: () => document.getElementById("restoreFile").click(),
   async exportCsv(){
@@ -1273,6 +1626,13 @@ const Actions = {
     if(ok) toast("CSV exported.");
   },
   openSupport,
+  hideBanner(el){ session[el.dataset.b] = true; render(); },
+  async installApp(){
+    if(!installPrompt) return;
+    installPrompt.prompt();
+    try{ await installPrompt.userChoice; }catch(e){}
+    installPrompt = null; render();
+  },
   setTheme(el){
     const theme = el.dataset.v === "dark" ? "dark" : "light";
     Store.setTheme(theme);
@@ -1331,9 +1691,12 @@ document.getElementById("restoreFile").addEventListener("change", async e => {
 /* =========================================================
    START
    ========================================================= */
-Store.init().then(() => {
+Store.init().then(async () => {
   render();
-  if(Store.get().setupDone) setTimeout(checkMilestones, 600);
+  registerServiceWorker();
+  requestPersistentStorage();
+  const shown = await showUpdateNotice();
+  if(!shown && Store.get().setupDone) setTimeout(checkMilestones, 600);
 });
 </script>
 </body>
