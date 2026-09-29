@@ -112,6 +112,12 @@ main{max-width:960px;margin:0 auto;padding:12px 18px 120px}
 .btn.danger{color:var(--expense);border-color:var(--expense)}
 .btn.solid-danger{background:var(--expense);border-color:var(--expense);color:#fff}
 .btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.danger-row b{color:var(--expense)}
+.delete-dialog{max-height:92vh;overflow:auto}
+.delete-dialog .tip-card{margin:4px 0 14px}
+.check{display:flex;align-items:flex-start;gap:10px;font-size:.95rem;margin:4px 0 2px;cursor:pointer}
+.check input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--brand);flex:none}
 .btn.ghost{border-color:transparent;background:transparent}
 
 .mnav{display:flex;align-items:center;gap:6px}
@@ -372,15 +378,16 @@ const CONFIG = {
   appName: "Alcaraz Business Tracker",
   tagline: "Simple numbers tracking for small businesses",
   author: "Jesse Alcaraz",
-  version: "0.6.1",
+  version: "0.6.2",
   // Shown once in the update notice after each new version. Leave "" to show only the safety message.
-  releaseNote: "Clearer install steps for your browser, and friendlier backup tips.",
+  releaseNote: "New in Settings: start over with Delete all data, and a new Learn section.",
   backupReminderDays: 14,
   beta: true, // shows the "Public Beta" badge
   gcashQr: "gcash-qr.png", // image file uploaded alongside index.html
   links: {
     profitabilityReview: "https://m.me/YOUR_PAGE?ref=tracker_profitability", // placeholder
-    accountingSystem:    "https://m.me/YOUR_PAGE?ref=tracker_system"         // placeholder
+    accountingSystem:    "https://m.me/YOUR_PAGE?ref=tracker_system",        // placeholder
+    course:              "https://forms.gle/CmBsXQLVDqmNRAMJ8"               // Accounting for Business Owners
   },
   modalCooldownDays: 3 // minimum days between milestone messages
 };
@@ -561,6 +568,17 @@ const Store = (() => {
       return true;
     },
     parseBackup(d){ return isValid(d) ? d : null; },
+
+    // Delete all data. keepSetup = keep categories & payment methods, clear transactions only.
+    resetData(keepSetup){
+      if(keepSetup){
+        data.transactions = [];
+        data.meta.lastBackupAt = null;
+      } else {
+        data = defaults(); // back to Getting Started
+      }
+      return commit();
+    },
 
     markBackup(){ data.meta.lastBackupAt = new Date().toISOString(); return commit(); },
 
@@ -1079,6 +1097,9 @@ const Views = {
           ? "To back up: tap <b>Back up to Google Drive</b>, choose <b>Drive</b>, then <b>Save</b>."
           : "To back up: save the file into your Google Drive folder, or upload it at drive.google.com."}
           On another device, tap <b>Restore Data</b> and pick your latest backup. Restoring replaces the data on that device.</p>
+        <section class="card list-card">
+          <button class="list-row danger-row" data-action="openDelete"><span><b>Delete all data</b><small>Start over on this device</small></span><span aria-hidden="true">›</span></button>
+        </section>
       </div>
 
       <div class="settings-group">
@@ -1094,6 +1115,15 @@ const Views = {
           <p class="muted">Now it's a free web app — with the same goal: help you track your numbers without making things complicated.</p>
           <p class="muted" style="margin-top:10px">Built by ${esc(CONFIG.author)}, CPA</p>
           <p class="muted small">Version ${esc(CONFIG.version)}</p>
+        </section>
+      </div>
+
+      <div class="settings-group">
+        <div class="group-label">Learn</div>
+        <section class="card">
+          <p style="margin:0 0 6px"><b>📚 Accounting for Business Owners</b></p>
+          <p class="muted" style="margin:0 0 12px">Want to understand your numbers better? Join my online course — practical, simple, and made for Pinoy business owners.</p>
+          <a class="btn primary" href="${esc(CONFIG.links.course)}" target="_blank" rel="noopener">Enroll now</a>
         </section>
       </div>
 
@@ -1427,6 +1457,53 @@ async function checkMilestones(){
 // GCash QR lives in a separate image file next to index.html (see CONFIG.gcashQr)
 const GCASH_QR = CONFIG.gcashQr;
 
+function openDeleteDialog(){
+  const ov = openOverlay(`<div class="dialog delete-dialog">
+    <h2>Delete all data?</h2>
+    <div class="body"><p>This permanently deletes your records on this device. It can't be undone.</p></div>
+    <div class="tip-card">
+      <p style="margin:0 0 4px"><b>We recommend making a backup first.</b></p>
+      <p style="margin:0 0 8px">If you change your mind later, you can restore it.</p>
+      <p class="muted small" style="margin:0 0 10px" id="delLastBackup">${esc(lastBackupText())}</p>
+      <button class="btn" id="delBackup">Back up now</button>
+    </div>
+    <label class="check"><input type="checkbox" id="delKeep" checked> <span>Keep my categories and payment methods</span></label>
+    <label class="field"><span>Type DELETE to confirm</span>
+      <input id="delConfirm" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
+    <div class="actions">
+      <button class="btn solid-danger block" id="delGo" disabled>Delete all data</button>
+      <button class="btn ghost block" id="delCancel">Cancel</button>
+    </div>
+  </div>`, true);
+  overlayClose = () => closeOverlay();
+  const $ = sel => ov.querySelector(sel);
+  $("#delCancel").addEventListener("click", closeOverlay);
+
+  // Back up without leaving the dialog
+  $("#delBackup").addEventListener("click", async () => {
+    const how = await saveBackup();
+    if(!how) return;
+    await Store.markBackup();
+    const line = $("#delLastBackup");
+    if(line) line.textContent = "✓ Backup made just now";
+    if(how !== "downloaded") toast("✅ Backup saved.");
+  });
+
+  // Accept "delete" in any case (phone keyboards often capitalize)
+  const input = $("#delConfirm"), go = $("#delGo");
+  input.addEventListener("input", () => { go.disabled = input.value.trim().toUpperCase() !== "DELETE"; });
+
+  go.addEventListener("click", async () => {
+    if(go.disabled) return;
+    await Store.resetData($("#delKeep").checked);
+    closeOverlay();
+    ui.view = "dashboard"; ui.month = thisMonth(); ui.txFilter = "all";
+    render(); window.scrollTo(0, 0);
+    toast("All data deleted.");
+  });
+  $("#delCancel").focus();
+}
+
 function openSupport(){
   const ov = openOverlay(`<div class="dialog support">
     <h2>Enjoying Alcaraz Business Tracker? 💗</h2>
@@ -1626,6 +1703,7 @@ const Actions = {
     if(ok) toast("CSV exported.");
   },
   openSupport,
+  openDelete: () => openDeleteDialog(),
   hideBanner(el){ session[el.dataset.b] = true; render(); },
   async installApp(){
     if(!installPrompt) return;
