@@ -288,7 +288,7 @@ table.tx th.amt{text-align:right}
 .net-box .v{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:800}
 
 /* List editor (setup + settings) */
-.le{display:grid;gap:8px}
+.le{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
 .le-row{display:flex;gap:8px}
 .le-row input,.le-add input,.field input,.field select{flex:1;min-width:0;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface)}
 .le-row button{flex:none;width:44px;height:44px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-2);font-size:1.15rem}
@@ -332,6 +332,22 @@ table.tx th.amt{text-align:right}
 .chip input{position:absolute;opacity:0;pointer-events:none}
 .chip span{display:inline-block;padding:8px 14px;border-radius:99px;border:1px solid var(--border-strong);background:var(--surface);font-weight:600;font-size:.93rem;cursor:pointer}
 .chip input:checked + span{background:var(--text);color:var(--surface);border-color:var(--text)}
+.le-row select{flex:none;width:auto;min-width:0;min-height:44px;padding:10px 6px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:inherit;font:inherit;font-size:.9rem}
+.tap{cursor:pointer}
+.tap:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.sum-table tr.tap:hover td,.cash-row.tap:hover{background:var(--surface-2)}
+.chev{display:inline-block;width:14px;text-align:right;color:var(--text-3)}
+.drill-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+.drill-head h2{margin-bottom:2px}
+.drill .mnav{justify-content:center;margin:0 0 10px}
+.drill-list{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.drill-total{display:flex;justify-content:space-between;gap:12px;padding:12px 2px 0;font-weight:800;font-size:1.05rem}
+.drill-bal{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;font-weight:700;background:var(--surface-2);border-radius:10px;margin:8px 0}
+.entry-amt{text-align:right}
+.entry-run{display:block;font-size:.78rem;font-weight:500;color:var(--text-3)}
+.rp-title{margin-top:18px}
+.rp-head{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);margin-top:10px}
+.rp-sub{display:block;font-size:.78rem;font-weight:400;color:var(--text-3)}
 .chip input:focus-visible + span{outline:2px solid var(--brand);outline-offset:2px}
 .form-err{color:var(--expense);font-weight:600;font-size:.9rem;min-height:1.2em;margin:12px 0 0}
 .sheet-actions{display:grid;gap:10px;margin-top:14px}
@@ -378,9 +394,9 @@ const CONFIG = {
   appName: "Alcaraz Business Tracker",
   tagline: "Simple numbers tracking for small businesses",
   author: "Jesse Alcaraz",
-  version: "0.6.2",
+  version: "0.7.0",
   // Shown once in the update notice after each new version. Leave "" to show only the safety message.
-  releaseNote: "New in Settings: start over with Delete all data, and a new Learn section.",
+  releaseNote: "Track receivables and payables (set a type for each payment method in Settings). Tap a category or a cash balance to see the entries behind it. The phone's Back button now works inside the app.",
   backupReminderDays: 14,
   beta: true, // shows the "Public Beta" badge
   gcashQr: "gcash-qr.png", // image file uploaded alongside index.html
@@ -397,6 +413,15 @@ const CONFIG = {
    To move to Supabase later, replace `adapter` (load/save)
    and keep the rest of the app unchanged.
    ========================================================= */
+// Each mode of payment is money you hold (cash), money owed to you (receivable) or money you owe (payable)
+const PM_TYPES = ["cash", "receivable", "payable"];
+const PM_TYPE_LABEL = { cash: "Cash", receivable: "Receivable", payable: "Payable" };
+const RP_DEFAULTS = {
+  receivable: { name: "Receivable", type: "receivable", subtitle: "Babayaran ng customer" },
+  payable: { name: "Payable", type: "payable", subtitle: "Babayaran mo pa" }
+};
+const pmType = p => (p && PM_TYPES.includes(p.type)) ? p.type : "cash";
+
 const Store = (() => {
   const KEY = "alcaraz-business-tracker-v1";
   const THEME_KEY = "alcaraz-business-tracker-theme";
@@ -427,9 +452,13 @@ const Store = (() => {
       schemaVersion: 1,
       setupDone: false,
       categories,
-      paymentMethods: ["Cash","GCash","Bank"].map(name => ({ id: uid(), name })),
+      paymentMethods: [
+        ...["Cash","GCash","Bank"].map(name => ({ id: uid(), name, type: "cash" })),
+        { id: uid(), ...RP_DEFAULTS.receivable },
+        { id: uid(), ...RP_DEFAULTS.payable }
+      ],
       transactions: [],
-      meta: { shownMessages: {}, lastModalAt: null, lastPaymentMethodId: null, bankChargeCategoryId: bankCharges.id, bankChargesSeeded: true, firstUsedAt: new Date().toISOString() }
+      meta: { shownMessages: {}, lastModalAt: null, lastPaymentMethodId: null, bankChargeCategoryId: bankCharges.id, bankChargesSeeded: true, rpOfferDone: true, firstUsedAt: new Date().toISOString() }
     };
   }
 
@@ -458,6 +487,9 @@ const Store = (() => {
     d.schemaVersion = 1;
     d.setupDone = d.setupDone !== false;
     d.meta = Object.assign({ shownMessages:{}, lastModalAt:null, lastPaymentMethodId:null, bankChargeCategoryId:null, firstUsedAt:new Date().toISOString() }, d.meta || {});
+    // Modes created before v0.7.0 have no type: they are all cash.
+    // (meta.rpOfferDone stays unset for that data, so the dashboard offers receivables/payables once.)
+    d.paymentMethods.forEach(p => { p.type = pmType(p); });
     // One-time upgrade: add the Bank Charges default to data created before v0.2.1.
     // If the user later removes it, it is not added back.
     if(!d.meta.bankChargesSeeded){
@@ -504,7 +536,8 @@ const Store = (() => {
     addTransaction(t){
       const now = new Date().toISOString();
       data.transactions.push({ id: uid(), ...t, createdAt: now, updatedAt: now });
-      if(t.paymentMethodId) data.meta.lastPaymentMethodId = t.paymentMethodId;
+      // Remembered as the next entry's default. Never a receivable/payable mode.
+      if(t.paymentMethodId && pmType(data.paymentMethods.find(p => p.id === t.paymentMethodId)) === "cash") data.meta.lastPaymentMethodId = t.paymentMethodId;
       return commit();
     },
     updateTransaction(id, patch){
@@ -529,6 +562,18 @@ const Store = (() => {
     renameItem(listName, id, name){
       const item = list(listName).find(x => x.id === id);
       if(item) item.name = name;
+      return commit();
+    },
+    setPaymentMethodType(id, type){
+      const item = data.paymentMethods.find(x => x.id === id);
+      if(item && PM_TYPES.includes(type) && item.type !== type){ item.type = type; delete item.subtitle; }
+      return commit();
+    },
+    // Receivables/payables offer for data created before v0.7.0
+    applyRpOffer({ setTypes = [], add = [] } = {}){
+      setTypes.forEach(({ id, type }) => { const p = data.paymentMethods.find(x => x.id === id); if(p) p.type = type; });
+      add.forEach(type => data.paymentMethods.push({ id: uid(), ...RP_DEFAULTS[type] }));
+      data.meta.rpOfferDone = true;
       return commit();
     },
     removeItem(listName, id){
@@ -654,6 +699,11 @@ function topBanners(){
   if(ui.view === "dashboard" && needsBackupReminder() && !session.hideBackup){
     out.push(`<div class="banner" role="status"><div><b>Time for a backup.</b> ${esc(lastBackupText())}. Save a copy to Google Drive so you don't lose your records.</div><button class="btn primary small-btn" data-action="backup">Back up</button><button class="banner-x" data-action="hideBanner" data-b="hideBackup" aria-label="Dismiss">×</button></div>`);
   }
+  // Data from before receivables/payables existed: offer them once (dismissed for good, not per session)
+  const d = Store.get();
+  if(ui.view === "dashboard" && !d.meta.rpOfferDone && d.paymentMethods.every(p => pmType(p) === "cash")){
+    out.push(`<div class="banner" role="status"><div><b>New:</b> track receivables and payables. Add them?</div><button class="btn primary small-btn" data-action="rpAdd">Add</button><button class="banner-x" data-action="rpDismiss" aria-label="Dismiss">×</button></div>`);
+  }
   return out.join("");
 }
 
@@ -713,9 +763,11 @@ async function showUpdateNotice(){
    ========================================================= */
 const Calc = {
   txInMonth(month){ return Store.get().transactions.filter(t => t.date.startsWith(month)); },
-  monthTotals(month){
+  monthTotals(month){ return this.totalsOf(this.txInMonth(month)); },
+  // start and end are inclusive dates (the dashboard's day and week views)
+  rangeTotals(start, end){ return this.totalsOf(Store.get().transactions.filter(t => t.date >= start && t.date <= end)); },
+  totalsOf(txs){
     let sales = 0, expenses = 0; const byCat = {};
-    const txs = this.txInMonth(month);
     txs.forEach(t => {
       if(t.type === "transfer"){
         // A transfer only moves money; its bank charge (if any) is an expense
@@ -744,8 +796,10 @@ const Calc = {
         add(t.paymentMethodId, t.type === "sales" ? t.amount : -t.amount);
       }
     });
-    const total = Object.values(by).reduce((a, b) => a + b, 0);
-    return { by, total };
+    // Total Available is cash-type modes only; receivables and payables are reported beside it
+    const sum = type => d.paymentMethods.filter(p => pmType(p) === type).reduce((a, p) => a + by[p.id], 0);
+    const total = sum("cash"), receivable = sum("receivable"), payable = -sum("payable"); // payable shown as a positive amount owed
+    return { by, total, receivable, payable };
   },
   yearTotals(year){
     const out = { sales: 0, expenses: 0, byCat: {} };
@@ -769,6 +823,41 @@ const thisMonth = () => todayISO().slice(0, 7);
 function shiftMonth(m, delta){ const [y, mo] = m.split("-").map(Number); const d = new Date(y, mo-1+delta, 1); return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; }
 function monthLabel(m, short){ const [y, mo] = m.split("-").map(Number); return new Date(y, mo-1, 1).toLocaleDateString("en-PH", short ? { month:"short" } : { month:"long", year:"numeric" }); }
 function dateLabel(iso){ const [y, m, d] = iso.split("-").map(Number); return new Date(y, m-1, d).toLocaleDateString("en-PH", { month:"short", day:"numeric", year:"numeric" }); }
+const isoOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+function shiftDay(iso, delta){ const [y, m, d] = iso.split("-").map(Number); return isoOf(new Date(y, m-1, d+delta)); }
+// Weeks run Monday to Sunday
+function weekStart(iso){ const [y, m, d] = iso.split("-").map(Number); return shiftDay(iso, -((new Date(y, m-1, d).getDay() + 6) % 7)); }
+function dayLabel(iso, withYear){ const [y, m, d] = iso.split("-").map(Number); return new Date(y, m-1, d).toLocaleDateString("en-PH", withYear ? { weekday:"short", month:"short", day:"numeric", year:"numeric" } : { month:"short", day:"numeric" }); }
+// "Oct 5 – 11, 2026", "Sep 28 – Oct 4, 2026", "Dec 29, 2025 – Jan 4, 2026"
+function rangeLabel(start, end){
+  if(start === end) return dayLabel(start, true);
+  const sameYear = start.slice(0, 4) === end.slice(0, 4), sameMonth = start.slice(0, 7) === end.slice(0, 7);
+  return `${sameYear ? dayLabel(start) : dateLabel(start)} – ${sameMonth ? Number(end.slice(8)) + ", " + end.slice(0, 4) : dateLabel(end)}`;
+}
+// The period the Dashboard is showing. Day and Week are Dashboard-only; the other views stay
+// monthly and show ui.month, which follows the selected day.
+function dashPeriod(){
+  if(ui.dashMode === "month") return { mode: "month", scope: ui.month, label: monthLabel(ui.month), prevLabel: monthLabel(shiftMonth(ui.month, -1), true) };
+  // The month was changed elsewhere (another view, or Month mode): start from today or that month's first day
+  if(ui.dashDate.slice(0, 7) !== ui.month) ui.dashDate = ui.month === thisMonth() ? todayISO() : ui.month + "-01";
+  if(ui.dashMode === "day"){
+    const prev = shiftDay(ui.dashDate, -1);
+    return { mode: "day", start: ui.dashDate, end: ui.dashDate, prevStart: prev, prevEnd: prev, scope: `${ui.dashDate}..${ui.dashDate}`, label: dayLabel(ui.dashDate, true), prevLabel: dayLabel(prev) };
+  }
+  const start = weekStart(ui.dashDate), end = shiftDay(start, 6);
+  return { mode: "week", start, end, prevStart: shiftDay(start, -7), prevEnd: shiftDay(start, -1), scope: `${start}..${end}`, label: rangeLabel(start, end), prevLabel: "previous week" };
+}
+function dashNav(per){
+  const noun = per.mode;
+  return `<div class="seg" role="group" aria-label="Dashboard period">
+      ${[["day","Day"],["week","Week"],["month","Month"]].map(([v, l]) => `<button data-action="dashMode" data-v="${v}" class="${per.mode === v ? "on" : ""}" aria-pressed="${per.mode === v}">${l}</button>`).join("")}
+    </div>
+    <div class="mnav">
+      <button class="icon-btn" data-action="dashStep" data-d="-1" aria-label="Previous ${noun}">‹</button>
+      <strong>${esc(per.label)}</strong>
+      <button class="icon-btn" data-action="dashStep" data-d="1" aria-label="Next ${noun}">›</button>
+    </div>`;
+}
 function peso(n){ const s = "₱" + Math.abs(n).toLocaleString("en-PH", { minimumFractionDigits:2, maximumFractionDigits:2 }); return n < 0 ? "−" + s : s; }
 function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c])); }
 const catById = id => Store.get().categories.find(c => c.id === id);
@@ -786,7 +875,7 @@ Store.setErrorHandler(toast);
 /* =========================================================
    UI STATE
    ========================================================= */
-const ui = { view: "dashboard", month: thisMonth(), txFilter: "all", summaryMode: "month", year: thisMonth().slice(0, 4) };
+const ui = { view: "dashboard", month: thisMonth(), txFilter: "all", summaryMode: "month", dashMode: "month", dashDate: todayISO(), year: thisMonth().slice(0, 4) };
 
 /* =========================================================
    REUSABLE COMPONENTS
@@ -847,17 +936,20 @@ function listEditor(listName, type){
   return `<div class="le">
     ${items.map(i => `<div class="le-row">
       <input value="${esc(i.name)}" maxlength="40" data-rename-list="${listName}" data-id="${i.id}" aria-label="${noun} name">
+      ${listName === "paymentMethods" ? `<select data-pm-type="${i.id}" aria-label="Type of ${esc(i.name)}">${PM_TYPES.map(t => `<option value="${t}" ${pmType(i) === t ? "selected" : ""}>${PM_TYPE_LABEL[t]}</option>`).join("")}</select>` : ""}
       <button data-action="removeItem" data-list="${listName}" data-id="${i.id}" aria-label="Remove ${esc(i.name)}">×</button>
     </div>`).join("")}
     <div class="le-add">
       <input id="add-${key}" maxlength="40" placeholder="New ${noun.toLowerCase()}" data-enter="addItem-${key}" aria-label="New ${noun.toLowerCase()}">
       <button class="btn" id="addItem-${key}" data-action="addItem" data-list="${listName}" data-type="${type || ""}" data-input="add-${key}">+ Add ${noun}</button>
     </div>
+    ${listName === "paymentMethods" ? `<p class="hint"><b>Cash</b> is money you have. <b>Receivable</b> is money customers still owe you. <b>Payable</b> is money you still owe. Use separate modes for customers (Receivable) and suppliers (Payable).</p>` : ""}
   </div>`;
 }
 
-function compare(cur, prev, prevMonth, goodWhenUp, money){
-  const pm = esc(monthLabel(prevMonth, true));
+// prevLabel names the period being compared with: "Sep", "Oct 4", "previous week"
+function compare(cur, prev, prevLabel, goodWhenUp, money){
+  const pm = esc(prevLabel);
   if(prev === 0) return `<div class="cmp">No ${pm} data to compare</div>`;
   if(cur === prev) return `<div class="cmp">Same as ${pm}</div>`;
   const up = cur > prev;
@@ -891,7 +983,7 @@ const Views = {
     const d = Store.get();
     const addHero = `<button class="btn primary hero-add" data-action="openAdd">＋ Add Transaction</button>`;
     const head = `<div class="page-head dash-head">
-        <div><h1>Dashboard</h1><p class="subtitle">What happened to your business this month?</p>${lastUpdated()}</div>
+        <div><h1>Dashboard</h1><p class="subtitle">What happened to your business ${{ day: "today", week: "this week", month: "this month" }[ui.dashMode]}?</p>${lastUpdated()}</div>
         ${addHero}
       </div>`;
 
@@ -906,30 +998,43 @@ const Views = {
         </div>`;
     }
 
-    const prevM = shiftMonth(ui.month, -1);
-    const t = Calc.monthTotals(ui.month);
-    const p = Calc.monthTotals(prevM);
+    const per = dashPeriod();
+    const prevM = per.prevLabel;
+    const t = per.mode === "month" ? Calc.monthTotals(ui.month) : Calc.rangeTotals(per.start, per.end);
+    const p = per.mode === "month" ? Calc.monthTotals(shiftMonth(ui.month, -1)) : Calc.rangeTotals(per.prevStart, per.prevEnd);
     const cash = Calc.cashPosition();
 
     const expCats = d.categories.filter(c => c.type === "expense" && t.byCat[c.id])
       .map(c => ({ c, v: t.byCat[c.id] })).sort((a, b) => b.v - a.v);
     const breakdown = expCats.length ? `<div class="brk">${expCats.map(r => {
       const pct = t.expenses > 0 ? r.v / t.expenses * 100 : 0;
-      return `<div><div class="line"><b>${esc(r.c.name)}</b><span class="num">${peso(r.v)} <span class="muted small">(${pct.toFixed(0)}%)</span></span></div>
+      return `<div class="tap" data-action="drillCat" data-id="${r.c.id}" data-scope="${per.scope}" role="button" tabindex="0" aria-label="Show ${esc(r.c.name)} entries"><div class="line"><b>${esc(r.c.name)}</b><span class="num">${peso(r.v)} <span class="muted small">(${pct.toFixed(0)}%)</span></span></div>
         <div class="bar"><i style="width:${Math.max(pct, 1.5).toFixed(1)}%"></i></div></div>`;
     }).join("")}</div>` : `<div class="empty-inline">
         <p><b>No expenses recorded yet.</b></p>
         <p class="muted">Once you start recording expenses, you'll see where your money is going.</p>
       </div>`;
 
-    const cashCards = d.paymentMethods.map(pm => {
+    // Receivables & Payables: only shown when such modes exist
+    const rpRows = type => {
+      const modes = d.paymentMethods.filter(pm => pmType(pm) === type);
+      if(!modes.length) return "";
+      return `<div class="rp-head">${type === "receivable" ? "Owed to you" : "You owe"}</div>` + modes.map(pm => {
+        const v = type === "payable" ? -(cash.by[pm.id] || 0) : (cash.by[pm.id] || 0);
+        return `<div class="cash-row tap" data-action="drillPm" data-id="${pm.id}" role="button" tabindex="0" aria-label="Show ${esc(pm.name)} statement"><span>${esc(pm.name)}${pm.subtitle ? `<small class="rp-sub">${esc(pm.subtitle)}</small>` : ""}</span><span class="num ${v < 0 ? "neg-text" : ""}">${peso(v)}</span></div>`;
+      }).join("");
+    };
+    const rpBody = rpRows("receivable") + rpRows("payable");
+    const rpSection = rpBody ? `<h3 class="sub-h rp-title">Receivables &amp; Payables</h3>${rpBody}` : "";
+
+    const cashCards = d.paymentMethods.filter(pm => pmType(pm) === "cash").map(pm => {
       const v = cash.by[pm.id] || 0;
-      return `<div class="cash-card"><div class="cash-label"><span class="cash-icon" aria-hidden="true">${pmIcon(pm.name)}</span>${esc(pm.name)}</div>
+      return `<div class="cash-card tap" data-action="drillPm" data-id="${pm.id}" role="button" tabindex="0" aria-label="Show ${esc(pm.name)} statement"><div class="cash-label"><span class="cash-icon" aria-hidden="true">${pmIcon(pm.name)}</span>${esc(pm.name)}</div>
         <div class="cash-value num ${v < 0 ? "neg-text" : ""}">${peso(v)}</div></div>`;
     }).join("");
 
     return `${head}
-      <div class="filters">${monthNav()}</div>
+      <div class="filters">${dashNav(per)}</div>
       <div class="metrics">
         <div class="metric sales"><div class="label">Sales</div><div class="value num">${peso(t.sales)}</div>${compare(t.sales, p.sales, prevM, true)}</div>
         <div class="metric expense"><div class="label">Expenses</div><div class="value num">${peso(t.expenses)}</div>${compare(t.expenses, p.expenses, prevM, false)}</div>
@@ -944,6 +1049,7 @@ const Views = {
             <div class="cash-label">Total Available</div>
             <div class="cash-value num">${peso(cash.total)}</div>
           </div>
+          ${rpSection}
           <p class="muted small" style="margin:10px 0 0">Based on all recorded transactions to date.</p>
         </section>
         <section class="card">
@@ -1015,15 +1121,17 @@ const Views = {
   },
 
   // Shared layout for monthly and yearly summaries: categories, totals, net
-  summaryBody(t){
+  summaryBody(t, scope){
     const d = Store.get();
     const section = (type, label, total) => {
       const rows = d.categories.filter(c => c.type === type).map(c => {
         const v = t.byCat[c.id] || 0;
-        return `<tr class="${v ? "" : "zero"}"><td>${esc(c.name)}</td><td class="num">${peso(v)}</td></tr>`;
+        // Categories with a figure open the entries behind it
+        return v ? `<tr class="tap" data-action="drillCat" data-id="${c.id}" data-scope="${scope}" role="button" tabindex="0" aria-label="Show ${esc(c.name)} entries"><td>${esc(c.name)}</td><td class="num">${peso(v)}<span class="chev" aria-hidden="true">›</span></td></tr>`
+          : `<tr class="zero"><td>${esc(c.name)}</td><td class="num">${peso(v)}<span class="chev" aria-hidden="true"></span></td></tr>`;
       }).join("");
       return `<section class="card"><h2>${label}</h2><table class="sum-table"><tbody>${rows}
-        <tr class="total"><td>Total ${label}</td><td class="num">${peso(total)}</td></tr></tbody></table></section>`;
+        <tr class="total"><td>Total ${label}</td><td class="num">${peso(total)}<span class="chev" aria-hidden="true"></span></td></tr></tbody></table></section>`;
     };
     return `<div class="stack">
         ${section("sales", "Sales", t.sales)}
@@ -1037,7 +1145,7 @@ const Views = {
     return `
       <div class="page-head"><h1>Monthly Summary</h1>${modeSwitch}</div>
       <div class="filters">${monthNav()}</div>
-      ${this.summaryBody(Calc.monthTotals(ui.month))}`;
+      ${this.summaryBody(Calc.monthTotals(ui.month), ui.month)}`;
   },
 
   summaryYear(modeSwitch){
@@ -1050,7 +1158,7 @@ const Views = {
           <button class="icon-btn" data-action="ynext" aria-label="Next year">›</button>
         </div>
       </div>
-      ${this.summaryBody(Calc.yearTotals(ui.year))}`;
+      ${this.summaryBody(Calc.yearTotals(ui.year), ui.year)}`;
   },
 
   settings(){
@@ -1168,17 +1276,62 @@ function render(){
   <nav class="bottomnav" aria-label="Main navigation"><div class="in">${bottom}</div></nav>
   <button class="fab" data-action="openAdd" aria-label="Add Transaction">＋</button>`;
 }
-function go(view){ ui.view = view; render(); window.scrollTo(0, 0); }
+function go(view){
+  if(view !== ui.view){
+    const depth = histDepth();
+    // Dashboard is the bottom of the back stack, so Back from it leaves the app
+    if(view === "dashboard" && depth > 0) histBack(depth);
+    else histPush({ view, depth: depth + 1 });
+    ui.view = view;
+  }
+  render(); window.scrollTo(0, 0);
+}
+
+/* =========================================================
+   BACK BUTTON — the phone's Back closes the top overlay first,
+   then returns to the previous view, and only leaves the app
+   from the Dashboard. Each view change and each open overlay
+   is one browser-history entry.
+   ========================================================= */
+let navBusy = 0; // non-zero while our own history.go() is in flight
+const isView = v => v === "settings" || NAV.some(n => n.view === v);
+const histState = () => (history.state && history.state.abt) ? history.state : null;
+const histDepth = () => { const s = histState(); return s ? s.depth : 0; };
+const overlayOpen = () => !!document.getElementById("overlayRoot").firstElementChild;
+function histPush(state){ try{ history.pushState({ abt: true, ...state }, ""); }catch(e){} }
+function histBack(n){
+  const token = navBusy = Date.now() + Math.random();
+  setTimeout(() => { if(navBusy === token) navBusy = 0; }, 1000); // in case popstate never comes
+  try{ history.go(-n); }catch(e){ navBusy = 0; }
+}
+// Keep history in step with the screen: one extra entry while an overlay is open
+function syncHistory(){
+  if(navBusy) return;
+  const s = histState(), open = overlayOpen();
+  if(open && !(s && s.ov)) histPush({ view: ui.view, depth: histDepth() + 1, ov: true });
+  else if(!open && s && s.ov) histBack(1);
+}
+window.addEventListener("popstate", () => {
+  if(navBusy){ navBusy = 0; syncHistory(); return; }
+  if(overlayOpen()) dismissTop();
+  else {
+    const s = histState(), view = s && isView(s.view) ? s.view : "dashboard";
+    if(view !== ui.view && Store.get().setupDone){ ui.view = view; render(); window.scrollTo(0, 0); }
+  }
+  setTimeout(syncHistory, 0);
+});
 
 /* =========================================================
    OVERLAYS — form sheet and reusable dialog
    ========================================================= */
 let overlayClose = null;
+let sheetReturn = null; // set while a form is open on behalf of a drill-down sheet
 function openOverlay(html, centered){
   const root = document.getElementById("overlayRoot");
   root.innerHTML = `<div class="overlay ${centered ? "center" : ""}" role="dialog" aria-modal="true">${html}</div>`;
   const ov = root.firstElementChild;
   ov.addEventListener("click", e => { if(e.target === ov && overlayClose) overlayClose("dismiss"); });
+  syncHistory();
   return ov;
 }
 // Mobile keyboards cover fixed-position content in many browsers (incl. Messenger's).
@@ -1203,8 +1356,34 @@ document.addEventListener("focusin", e => {
   setTimeout(() => { syncViewport(); el.scrollIntoView({ block: "center", behavior: "smooth" }); }, 300);
 });
 
-function closeOverlay(){ document.getElementById("overlayRoot").innerHTML = ""; overlayClose = null; }
-document.addEventListener("keydown", e => { if(e.key === "Escape" && overlayClose) overlayClose("dismiss"); });
+function closeOverlay(){
+  document.getElementById("overlayRoot").innerHTML = ""; overlayClose = null; discardDone = null;
+  // A form opened from a drill-down sheet goes back to that sheet, redrawn
+  const back = sheetReturn; sheetReturn = null;
+  if(back) back();
+  setTimeout(syncHistory, 0); // deferred: another overlay may open right away
+}
+// Back, Escape: close whatever is on top
+function dismissTop(){ if(discardDone) discardDone(false); else if(overlayClose) overlayClose("dismiss"); }
+
+// Small confirm shown on top of the transaction form. Resolves true to discard.
+let discardDone = null;
+function askDiscard(editing){
+  return new Promise(resolve => {
+    const root = document.getElementById("overlayRoot");
+    root.insertAdjacentHTML("beforeend", `<div class="overlay center" role="alertdialog" aria-modal="true"><div class="dialog">
+      <h2>${editing ? "Discard your changes?" : "Discard this entry?"}</h2><div class="body"><p>What you typed hasn't been saved.</p></div>
+      <div class="actions"><button class="btn solid-danger block" data-discard="1">Discard</button><button class="btn ghost block" data-discard="">Keep editing</button></div></div></div>`);
+    const layer = root.lastElementChild;
+    discardDone = v => { discardDone = null; layer.remove(); resolve(v); };
+    layer.addEventListener("click", e => {
+      const b = e.target.closest("[data-discard]");
+      if(b) discardDone(!!b.dataset.discard); else if(e.target === layer) discardDone(false);
+    });
+    layer.querySelector('[data-discard=""]').focus();
+  });
+}
+document.addEventListener("keydown", e => { if(e.key === "Escape") dismissTop(); });
 
 // Reusable modal: returns "primary" | "secondary" | "dismiss"
 function showDialog({ title, body, primaryLabel, primaryUrl, secondaryLabel, danger }){
@@ -1232,10 +1411,28 @@ function categoryOptions(type, selectedId){
   const cats = Store.get().categories.filter(c => c.type === type);
   return `<option value="">Choose a category</option>` + cats.map(c => `<option value="${c.id}" ${c.id === selectedId ? "selected" : ""}>${esc(c.name)}</option>`).join("");
 }
-function pmChips(name, selectedId, label){
+// Sales can go to cash or a receivable, expenses to cash or a payable; transfers can use any mode
+const PM_TYPES_FOR = { sales: ["cash", "receivable"], expense: ["cash", "payable"], transfer: PM_TYPES };
+// keepId: the mode an existing entry already uses stays selectable even if its type no longer fits
+function pmChips(name, selectedId, label, types = PM_TYPES, keepId){
   return `<div class="chips" role="radiogroup" aria-label="${esc(label)}">
-    ${Store.get().paymentMethods.map(p => `<label class="chip"><input type="radio" name="${name}" value="${p.id}" ${p.id === selectedId ? "checked" : ""}><span>${esc(p.name)}</span></label>`).join("")}
+    ${Store.get().paymentMethods.filter(p => types.includes(pmType(p)) || p.id === keepId).map(p => `<label class="chip"><input type="radio" name="${name}" value="${p.id}" ${p.id === selectedId ? "checked" : ""}><span>${esc(p.name)}</span></label>`).join("")}
   </div>`;
+}
+const lastCashPm = () => {
+  const d = Store.get(), last = pmById(d.meta.lastPaymentMethodId);
+  return (last && pmType(last) === "cash" ? last : d.paymentMethods.find(p => pmType(p) === "cash") || d.paymentMethods[0])?.id;
+};
+// Form details that depend on the chosen modes: the receivable/payable hint and the bank-charge field
+function syncPmFields(form){
+  const picked = name => pmType(pmById(form.querySelector(`input[name="${name}"]:checked`)?.value));
+  const isT = formType === "transfer";
+  const t = isT ? "cash" : picked("paymentMethodId");
+  const sub = isT ? "" : pmById(form.querySelector('input[name="paymentMethodId"]:checked')?.value)?.subtitle;
+  form.querySelector("#rpHint").textContent = (sub ? sub + ". " : "") + (t === "receivable" ? "Collected later? Record it as a Transfer, not a new sale."
+    : t === "payable" ? "Paid later? Record it as a Transfer, not a new expense." : "");
+  // A bank charge only makes sense between two cash modes
+  form.querySelector("#grpFee").classList.toggle("hidden", !isT || picked("fromPm") !== "cash" || picked("toPm") !== "cash");
 }
 function lineRows(tx){
   if(tx && tx.type !== "transfer"){
@@ -1292,7 +1489,7 @@ function openTxForm(tx){
   const regular = tx && tx.type !== "transfer" ? tx : null;
   const transfer = tx && tx.type === "transfer" ? tx : null;
 
-  const lastPm = pmById(d.meta.lastPaymentMethodId) ? d.meta.lastPaymentMethodId : d.paymentMethods[0]?.id;
+  const lastPm = lastCashPm();
   const pmSel = regular ? regular.paymentMethodId : lastPm;
   const fromSel = transfer ? transfer.fromPaymentMethodId : lastPm;
   const toSel = transfer ? transfer.toPaymentMethodId : d.paymentMethods.find(p => p.id !== fromSel)?.id;
@@ -1313,11 +1510,12 @@ function openTxForm(tx){
     <label class="field"><span>Date</span><input type="date" name="date" value="${esc(tx ? tx.date : todayISO())}" required></label>
     <div id="grpRegular" class="${isT ? "hidden" : ""}">
       <div class="field"><span>Line Items</span>${lineItemsHtml(regular, formType)}</div>
-      <div class="field"><span>Mode of Payment</span>${pmChips("paymentMethodId", pmSel, "Mode of Payment")}</div>
+      <div class="field"><span>Mode of Payment</span><div id="pmRegular">${pmChips("paymentMethodId", pmSel, "Mode of Payment", PM_TYPES_FOR[isT ? "expense" : formType], regular ? regular.paymentMethodId : null)}</div>
+        <div class="hint" id="rpHint"></div></div>
     </div>
     <div id="grpTransfer" class="${isT ? "" : "hidden"}">${transferFields}</div>
     <div id="grpTransferAmount" class="field ${isT ? "" : "hidden"}"><span>Amount (₱)</span><input class="amount num" name="amount" inputmode="decimal" autocomplete="off" placeholder="0.00" value="${transfer ? transfer.amount.toFixed(2) : ""}"></div>
-    <label class="field ${isT ? "" : "hidden"}" id="grpFee"><span>Bank charge (₱) — optional</span>
+    <label class="field hidden" id="grpFee"><span>Bank charge (₱) — optional</span>
       <input name="fee" inputmode="decimal" autocomplete="off" placeholder="0.00" value="${transfer && transfer.fee > 0 ? transfer.fee.toFixed(2) : ""}">
       <div class="hint">Deducted from the "From" account and counted as an expense under Bank Charges.</div>
     </label>
@@ -1329,10 +1527,13 @@ function openTxForm(tx){
            : `<button type="button" class="btn ghost block" data-action="closeForm">Cancel</button>`}
     </div>
   </form>`);
-  overlayClose = () => closeOverlay();
   const form = ov.querySelector("#txForm");
   form.addEventListener("submit", e => { e.preventDefault(); saveTx(form, tx); });
   form.addEventListener("input", e => { if(e.target.name === "lineAmount") updateLineTotal(form); });
+  form.addEventListener("change", e => { if(e.target.type === "radio") syncPmFields(form); });
+  // Editing keeps the entry's own mode selectable while its type is unchanged
+  form.dataset.keepPm = regular ? `${regular.type}:${regular.paymentMethodId}` : "";
+  syncPmFields(form);
   form.addEventListener("click", e => {
     const add = e.target.closest("[data-add-line]");
     if(add){ addLineRow(form); return; }
@@ -1346,6 +1547,12 @@ function openTxForm(tx){
   });
   refreshLineNumbers(form);
   updateLineTotal(form);
+  // Back / Escape / tapping outside ask before throwing away typed input
+  const snapshot = () => formType + "|" + new URLSearchParams(new FormData(form)).toString();
+  const initial = snapshot();
+  const dirty = () => tx ? snapshot() !== initial
+    : [...form.querySelectorAll("[name=lineAmount], [name=amount]")].some(i => i.value.trim());
+  overlayClose = async () => { if(!dirty() || await askDiscard(!!tx)) closeOverlay(); };
   if(!tx && isT && window.matchMedia("(pointer: fine)").matches) setTimeout(() => form.amount.focus(), 50);
 }
 
@@ -1367,7 +1574,8 @@ async function saveTx(form, tx){
     if(from === to) return err("From and To must be different payment methods.");
     amount = parseMoney(form.amount.value);
     if(!(amount > 0)) return err("Please enter an amount greater than zero.");
-    const feeRaw = form.fee.value.trim();
+    // No bank charge on transfers that involve a receivable or payable (the field is hidden)
+    const feeRaw = [from, to].every(id => pmType(pmById(id)) === "cash") ? form.fee.value.trim() : "";
     const fee = feeRaw ? parseMoney(feeRaw) : 0;
     if(feeRaw && !(fee >= 0)) return err("Enter a valid bank charge, or leave it blank.");
     payload = { date, type: "transfer", fromPaymentMethodId: from, toPaymentMethodId: to, amount, fee, description };
@@ -1390,7 +1598,7 @@ async function saveTx(form, tx){
   else await Store.addTransaction(payload);
 
   closeOverlay();
-  ui.month = date.slice(0, 7);
+  ui.month = date.slice(0, 7); ui.dashDate = date;
   render();
   const label = { sales: "Sales", expense: "Expense", transfer: "Transfer" }[formType];
   toast(tx ? "Transaction updated." : `Saved: ${label} ${peso(amount)}`);
@@ -1454,6 +1662,104 @@ async function checkMilestones(){
   showDialog({ ...msg, primaryUrl: msg.primaryUrl ? msg.primaryUrl() : null });
 }
 
+/* =========================================================
+   DRILL-DOWN — the entries behind a figure.
+   Category sheet: entries in one category for a month or year
+   (its total equals the figure that was tapped).
+   Statement sheet: one mode of payment, month by month, with
+   a running balance. Tapping an entry opens it for editing and
+   returns to the sheet afterwards.
+   ========================================================= */
+let drillReopen = null; // redraws the sheet currently open
+
+function openDrillSheet(title, sub, body, reopen){
+  const ov = openOverlay(`<div class="sheet drill">
+    <div class="drill-head"><div><h2>${esc(title)}</h2><p class="muted small" style="margin:0">${esc(sub)}</p></div>
+      <button type="button" class="icon-btn" data-action="closeForm" aria-label="Close">×</button></div>
+    ${body}</div>`);
+  overlayClose = () => closeOverlay();
+  drillReopen = reopen;
+  return ov;
+}
+const drillRow = (t, mark, cls, title, sub, right) => `<div class="entry" data-action="drillEdit" data-id="${t.id}" role="button" tabindex="0" aria-label="Edit entry">
+    <span class="entry-mark ${cls}" aria-hidden="true">${mark}</span>
+    <div class="entry-main"><div class="entry-title">${title}</div><div class="entry-sub">${sub}</div></div>
+    <div class="entry-amt num ${cls}">${right}</div>
+  </div>`;
+const byDateThenCreated = (a, b) => a.date.localeCompare(b.date) || (a.createdAt || "").localeCompare(b.createdAt || "");
+
+// scope is a month ("2026-10") or a year ("2026"); amounts are this category's share of each entry
+function categoryEntries(catId, scope){
+  const rows = [];
+  Store.get().transactions.forEach(t => {
+    if(scope.includes("..") ? (t.date < scope.slice(0, 10) || t.date > scope.slice(12)) : !t.date.startsWith(scope + (scope.length === 4 ? "-" : ""))) return;
+    let amount = 0;
+    if(t.type === "transfer"){ if(t.fee > 0 && t.feeCategoryId === catId) amount = t.fee; }
+    else if(Array.isArray(t.lines)) t.lines.forEach(l => { if(l.categoryId === catId) amount += l.amount; });
+    else if(t.categoryId === catId) amount = t.amount;
+    if(amount) rows.push({ t, amount });
+  });
+  return rows.sort((a, b) => byDateThenCreated(b.t, a.t));
+}
+function openCategorySheet(catId, scope){
+  const cat = catById(catId), rows = categoryEntries(catId, scope);
+  if(!cat || !rows.length) return; // e.g. the last entry was just deleted or moved
+  const pmName = id => pmById(id)?.name || "(removed method)";
+  const list = rows.map(({ t, amount }) => {
+    const isT = t.type === "transfer";
+    const where = isT ? `Bank charge · ${esc(pmName(t.fromPaymentMethodId))} → ${esc(pmName(t.toPaymentMethodId))}` : esc(pmName(t.paymentMethodId));
+    const part = !isT && t.lines && t.lines.length > 1 ? ` · part of ${peso(t.amount)}` : "";
+    return drillRow(t, isT ? "⇄" : cat.type === "sales" ? "+" : "−", isT ? "transfer" : cat.type,
+      esc(dateLabel(t.date)), `${where}${part}${t.description ? ` · ${esc(t.description)}` : ""}`, peso(amount));
+  }).join("");
+  const total = rows.reduce((a, r) => a + r.amount, 0);
+  const period = scope.includes("..") ? rangeLabel(scope.slice(0, 10), scope.slice(12)) : scope.length === 4 ? scope : monthLabel(scope);
+  openDrillSheet(cat.name, `${cat.type === "sales" ? "Sales" : "Expenses"} · ${period}`,
+    `<div class="drill-list">${list}</div>
+     <div class="drill-total"><span>Total · ${rows.length} ${rows.length === 1 ? "entry" : "entries"}</span><span class="num">${peso(total)}</span></div>`,
+    () => openCategorySheet(catId, scope));
+}
+
+// Change in one mode's balance caused by a transaction (0 if it doesn't involve that mode)
+function pmEffect(t, pmId){
+  if(t.type === "transfer") return (t.toPaymentMethodId === pmId ? t.amount : 0) - (t.fromPaymentMethodId === pmId ? t.amount + (t.fee || 0) : 0);
+  return t.paymentMethodId === pmId ? (t.type === "sales" ? t.amount : -t.amount) : 0;
+}
+function openStatement(pmId, month){
+  const pm = pmById(pmId);
+  if(!pm) return;
+  const type = pmType(pm), sign = type === "payable" ? -1 : 1; // a payable is shown as the amount you owe
+  const mine = Store.get().transactions.filter(t => t.paymentMethodId === pmId || t.fromPaymentMethodId === pmId || t.toPaymentMethodId === pmId);
+  const opening = mine.filter(t => t.date < month + "-01").reduce((a, t) => a + sign * pmEffect(t, pmId), 0);
+  const pmName = id => pmById(id)?.name || "(removed method)";
+  let bal = opening;
+  const list = mine.filter(t => t.date.startsWith(month)).sort(byDateThenCreated).map(t => {
+    const v = sign * pmEffect(t, pmId);
+    bal += v;
+    const isT = t.type === "transfer";
+    const lineCount = Array.isArray(t.lines) ? t.lines.length : 1;
+    const title = isT ? (t.fromPaymentMethodId === pmId ? `Transfer to ${esc(pmName(t.toPaymentMethodId))}` : `Transfer from ${esc(pmName(t.fromPaymentMethodId))}`)
+      : `${t.type === "sales" ? "Sale" : "Expense"} · ${lineCount > 1 ? `${lineCount} items` : esc(catById(t.lines?.[0]?.categoryId || t.categoryId)?.name || "(removed category)")}`;
+    const fee = isT && t.fee > 0 && t.fromPaymentMethodId === pmId ? ` · incl. ${peso(t.fee)} bank charge` : "";
+    return drillRow(t, { sales: "+", expense: "−", transfer: "⇄" }[t.type], t.type, title,
+      `${esc(dateLabel(t.date))}${fee}${t.description ? ` · ${esc(t.description)}` : ""}`,
+      `${v < 0 ? "−" : "+"}${peso(Math.abs(v))}<span class="entry-run">${peso(bal)}</span>`);
+  }).join("");
+  const balRow = (label, v) => `<div class="drill-bal"><span>${label}</span><span class="num ${v < 0 ? "neg-text" : ""}">${peso(v)}</span></div>`;
+  openDrillSheet(pm.name, { cash: "Statement", receivable: "Owed to you", payable: "You owe" }[type],
+    `<div class="mnav">
+       <button type="button" class="icon-btn" data-action="stmtNav" data-d="-1" aria-label="Previous month">‹</button>
+       <strong>${esc(monthLabel(month))}</strong>
+       <button type="button" class="icon-btn" data-action="stmtNav" data-d="1" aria-label="Next month">›</button>
+     </div>
+     ${balRow("Opening balance", opening)}
+     ${list ? `<div class="drill-list">${list}</div>` : `<p class="muted small" style="text-align:center;margin:14px 0">No entries in ${esc(monthLabel(month))}.</p>`}
+     ${balRow("Closing balance", bal)}`,
+    () => openStatement(pmId, month));
+  drillMonth = { pmId, month };
+}
+let drillMonth = null;
+
 // GCash QR lives in a separate image file next to index.html (see CONFIG.gcashQr)
 const GCASH_QR = CONFIG.gcashQr;
 
@@ -1497,8 +1803,8 @@ function openDeleteDialog(){
     if(go.disabled) return;
     await Store.resetData($("#delKeep").checked);
     closeOverlay();
-    ui.view = "dashboard"; ui.month = thisMonth(); ui.txFilter = "all";
-    render(); window.scrollTo(0, 0);
+    ui.month = thisMonth(); ui.txFilter = "all";
+    go("dashboard");
     toast("All data deleted.");
   });
   $("#delCancel").focus();
@@ -1631,6 +1937,13 @@ function buildCsv(){
    ========================================================= */
 const Actions = {
   nav: el => go(el.dataset.view),
+  dashMode: el => { ui.dashMode = el.dataset.v; render(); },
+  dashStep(el){
+    const d = Number(el.dataset.d);
+    if(ui.dashMode === "month") ui.month = shiftMonth(ui.month, d);
+    else { dashPeriod(); ui.dashDate = shiftDay(ui.dashDate, ui.dashMode === "week" ? d * 7 : d); ui.month = ui.dashDate.slice(0, 7); }
+    render();
+  },
   mprev: () => { ui.month = shiftMonth(ui.month, -1); render(); },
   mnext: () => { ui.month = shiftMonth(ui.month, 1); render(); },
   summaryMode: el => { ui.summaryMode = el.dataset.v; if(ui.summaryMode === "year") ui.year = ui.month.slice(0, 4); render(); },
@@ -1642,10 +1955,23 @@ const Actions = {
   editTx: el => { const t = Store.get().transactions.find(x => x.id === el.dataset.id); if(t) openTxForm(t); },
   async deleteTx(el){
     const id = el.dataset.id;
+    const back = sheetReturn; sheetReturn = null; // return to the drill-down sheet after the confirm, not before
     closeOverlay();
-    if(!(await confirmDialog("Delete this transaction?", "This can't be undone.", "Delete"))) return;
-    await Store.deleteTransaction(id);
-    render(); toast("Transaction deleted.");
+    if(await confirmDialog("Delete this transaction?", "This can't be undone.", "Delete")){
+      await Store.deleteTransaction(id);
+      render(); toast("Transaction deleted.");
+    }
+    if(back) back();
+  },
+  drillCat: el => openCategorySheet(el.dataset.id, el.dataset.scope),
+  drillPm: el => openStatement(el.dataset.id, thisMonth()),
+  stmtNav: el => { if(drillMonth) openStatement(drillMonth.pmId, shiftMonth(drillMonth.month, Number(el.dataset.d))); },
+  drillEdit(el){
+    const t = Store.get().transactions.find(x => x.id === el.dataset.id);
+    if(!t) return;
+    const reopen = drillReopen;
+    openTxForm(t);
+    sheetReturn = reopen;
   },
   formType(el){
     const prev = formType;
@@ -1656,13 +1982,43 @@ const Actions = {
     form.querySelector("#grpRegular").classList.toggle("hidden", isT);
     form.querySelector("#grpTransfer").classList.toggle("hidden", !isT);
     form.querySelector("#grpTransferAmount").classList.toggle("hidden", !isT);
-    form.querySelector("#grpFee").classList.toggle("hidden", !isT);
     if(!isT && prev !== formType){
+      // Sales and Expense offer different modes: redraw them, keeping the choice when it still fits
+      const [keepType, keepId] = (form.dataset.keepPm || ":").split(":");
+      const keep = keepType === formType ? keepId : null;
+      const cur = form.querySelector('input[name="paymentMethodId"]:checked')?.value;
+      const ok = id => { const p = pmById(id); return p && (id === keep || PM_TYPES_FOR[formType].includes(pmType(p))); };
+      form.querySelector("#pmRegular").innerHTML = pmChips("paymentMethodId", ok(cur) ? cur : lastCashPm(), "Mode of Payment", PM_TYPES_FOR[formType], keep);
       form.querySelectorAll('[name="lineCategory"]').forEach(select => { select.innerHTML = categoryOptions(formType, ""); });
       updateLineTotal(form);
     }
+    syncPmFields(form);
     form.querySelector("#formErr").textContent = "";
   },
+  // Receivables/payables offer for existing users
+  async rpAdd(){
+    const d = Store.get();
+    const named = re => d.paymentMethods.filter(p => re.test(p.name));
+    const found = { receivable: named(/\b(receivables?|a\/?r|collectibles?|pautang)\b/i), payable: named(/\b(payables?|a\/?p|utang)\b/i) };
+    const plan = { setTypes: [], add: [] }, body = [];
+    ["receivable", "payable"].forEach(type => {
+      if(found[type].length){
+        found[type].forEach(p => plan.setTypes.push({ id: p.id, type }));
+        body.push(`${found[type].map(p => `"${p.name}"`).join(", ")} will be set as ${PM_TYPE_LABEL[type]}.`);
+      } else {
+        plan.add.push(type);
+        body.push(`A new "${RP_DEFAULTS[type].name}" mode will be added.`);
+      }
+    });
+    // Modes that already look like AR/AP are retyped instead of adding duplicates, so ask first
+    if(plan.setTypes.length){
+      const r = await showDialog({ title: "Track receivables and payables", body: [...body, "You can change this anytime in Settings."], primaryLabel: "OK", secondaryLabel: "Cancel" });
+      if(r !== "primary") return;
+    }
+    await Store.applyRpOffer(plan);
+    render(); toast(plan.setTypes.length ? "Receivables and payables are set up." : "Added: Receivable and Payable. Change them in Settings.");
+  },
+  async rpDismiss(){ await Store.applyRpOffer(); render(); },
   async addItem(el){
     const input = document.getElementById(el.dataset.input);
     const name = input.value.trim();
@@ -1729,6 +2085,8 @@ document.addEventListener("click", e => {
 });
 
 document.addEventListener("change", async e => {
+  const pmId = e.target.dataset && e.target.dataset.pmType;
+  if(pmId){ await Store.setPaymentMethodType(pmId, e.target.value); render(); toast(`Type set to ${PM_TYPE_LABEL[pmType(pmById(pmId))]}.`); return; }
   const listName = e.target.dataset && e.target.dataset.renameList;
   if(!listName) return;
   const id = e.target.dataset.id, name = e.target.value.trim();
@@ -1743,8 +2101,9 @@ document.addEventListener("change", async e => {
 });
 
 document.addEventListener("keydown", e => {
-  if((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("entry")){
-    e.preventDefault(); Actions.editTx(e.target); return;
+  // Rows and cards that act as buttons (entries, drill-down targets)
+  if((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches('[role="button"][data-action]')){
+    e.preventDefault(); Actions[e.target.dataset.action](e.target); return;
   }
   if(e.key === "Enter" && e.target.dataset && e.target.dataset.enter){
     e.preventDefault();
@@ -1763,14 +2122,19 @@ document.getElementById("restoreFile").addEventListener("change", async e => {
     `This replaces the ${Store.get().transactions.length} transactions on this device with ${parsed.transactions.length} from the backup.`, "Restore");
   if(!ok) return;
   Store.importData(parsed);
-  ui.view = "dashboard"; render(); toast("Backup restored.");
+  go("dashboard"); toast("Backup restored.");
 });
 
 /* =========================================================
    START
    ========================================================= */
 Store.init().then(async () => {
+  // A reload keeps the browser's history entries, so reopen the view they describe
+  const s = histState();
+  if(s && isView(s.view) && Store.get().setupDone) ui.view = s.view;
+  else try{ history.replaceState({ abt: true, view: ui.view, depth: 0 }, ""); }catch(e){}
   render();
+  syncHistory();
   registerServiceWorker();
   requestPersistentStorage();
   const shown = await showUpdateNotice();
