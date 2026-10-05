@@ -255,6 +255,9 @@ table.tx th.amt{text-align:right}
 /* Banners & update bar */
 .banner{display:flex;align-items:center;gap:10px;background:var(--brand-soft);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:10px 10px 10px 14px;margin:0 0 14px;font-size:.9rem}
 .banner > div{flex:1;min-width:0}
+.banner.stack{flex-wrap:wrap;padding:12px 14px}
+.banner.stack > div{flex-basis:100%}
+.banner-btns{display:flex;gap:8px}
 .banner.warn{background:var(--expense-soft)}
 .banner-x{flex:none;width:32px;height:32px;border:0;background:transparent;color:var(--text-2);font-size:1.2rem;border-radius:8px}
 .small-btn{min-height:36px;padding:6px 12px;font-size:.88rem;flex:none}
@@ -394,9 +397,9 @@ const CONFIG = {
   appName: "Alcaraz Business Tracker",
   tagline: "Simple numbers tracking for small businesses",
   author: "Jesse Alcaraz",
-  version: "0.7.0",
+  version: "0.8.0",
   // Shown once in the update notice after each new version. Leave "" to show only the safety message.
-  releaseNote: "Track receivables and payables (set a type for each payment method in Settings). Tap a category or a cash balance to see the entries behind it. The phone's Back button now works inside the app.",
+  releaseNote: "You can now choose to share anonymous usage stats to help improve the app. Your records still stay on your device.",
   backupReminderDays: 14,
   beta: true, // shows the "Public Beta" badge
   gcashQr: "gcash-qr.png", // image file uploaded alongside index.html
@@ -426,6 +429,7 @@ const Store = (() => {
   const KEY = "alcaraz-business-tracker-v1";
   const THEME_KEY = "alcaraz-business-tracker-theme";
   const VERSION_KEY = "alcaraz-business-tracker-seen-version";
+  const STATS_KEY = "alcaraz-business-tracker-stats";
 
   const adapter = {
     async load(){
@@ -633,7 +637,15 @@ const Store = (() => {
 
     // Appearance preference (per device). Light is the default.
     getTheme(){ try{ return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light"; }catch(e){ return "light"; } },
-    setTheme(theme){ try{ localStorage.setItem(THEME_KEY, theme); }catch(e){} }
+    setTheme(theme){ try{ localStorage.setItem(THEME_KEY, theme); }catch(e){} },
+
+    // Anonymous usage stats (per device, never part of a backup): the user's choice,
+    // a random install id, and when the last weekly summary was sent
+    getStats(){
+      try{ return Object.assign({ consent: null, installId: null, lastSentAt: null }, JSON.parse(localStorage.getItem(STATS_KEY) || "{}")); }
+      catch(e){ return { consent: null, installId: null, lastSentAt: null }; }
+    },
+    setStats(patch){ try{ localStorage.setItem(STATS_KEY, JSON.stringify({ ...this.getStats(), ...patch })); }catch(e){} }
   };
 })();
 
@@ -704,8 +716,66 @@ function topBanners(){
   if(ui.view === "dashboard" && !d.meta.rpOfferDone && d.paymentMethods.every(p => pmType(p) === "cash")){
     out.push(`<div class="banner" role="status"><div><b>New:</b> track receivables and payables. Add them?</div><button class="btn primary small-btn" data-action="rpAdd">Add</button><button class="banner-x" data-action="rpDismiss" aria-label="Dismiss">×</button></div>`);
   }
+  // Anonymous usage stats: asked once, nothing is sent unless the user agrees
+  if(ui.view === "dashboard" && Stats.available && Store.getStats().consent === null){
+    out.push(`<div class="banner stack" role="status"><div><b>Help improve this free app?</b> Share anonymous usage stats, like how often you use it. Never your amounts, names or descriptions. Your records stay on your device.</div>
+      <span class="banner-btns"><button class="btn primary small-btn" data-action="statsConsent" data-v="yes">Agree</button><button class="btn small-btn" data-action="statsConsent" data-v="no">No thanks</button></span></div>`);
+  }
   return out.join("");
 }
+
+/* =========================================================
+   USAGE STATS — opt-in, anonymous, at most once a week.
+   Sends a small summary (counts and size bands) to this site's
+   own /api/heartbeat function. Never amounts, names, category
+   names or descriptions. See netlify/functions/heartbeat.mjs.
+   ========================================================= */
+const Stats = {
+  endpoint: "/api/heartbeat",
+  everyDays: 7,
+  // Only when served from the real site (not as a local file or inside another app's frame)
+  available: /^https?:$/.test(location.protocol) && !(window.claude && typeof window.claude.use === "function"),
+  band(n){ return n <= 0 ? "none" : n < 50000 ? "under_50k" : n < 200000 ? "50k_200k" : n < 500000 ? "200k_500k" : "500k_plus"; },
+  summary(){
+    const d = Store.get(), s = Store.getStats();
+    const day = 86400000, now = Date.now();
+    const iso = ms => isoOf(new Date(ms));
+    const from7 = iso(now - 6 * day), from30 = iso(now - 29 * day), today = todayISO();
+    const week = d.transactions.filter(t => t.date >= from7 && t.date <= today);
+    const month = Calc.rangeTotals(from30, today);
+    const createdDays = new Set(d.transactions.map(t => (t.createdAt || "").slice(0, 10)).filter(x => x && now - new Date(x).getTime() < 7 * day));
+    const ua = navigator.userAgent;
+    return {
+      install_id: s.installId,
+      app_version: CONFIG.version,
+      weeks_since_install: Math.max(0, Math.floor((now - new Date(d.meta.firstUsedAt).getTime()) / (7 * day))) || 0,
+      days_active_7d: Math.min(7, createdDays.size),
+      sales_entries_7d: week.filter(t => t.type === "sales").length,
+      expense_entries_7d: week.filter(t => t.type === "expense").length,
+      transfer_entries_7d: week.filter(t => t.type === "transfer").length,
+      total_entries: d.transactions.length,
+      sales_band_30d: this.band(month.sales),
+      expense_band_30d: this.band(month.expenses),
+      // Actually used, not just present: new setups get Receivable/Payable modes by default
+      uses_receivables: d.transactions.some(t => [t.paymentMethodId, t.fromPaymentMethodId, t.toPaymentMethodId].some(id => id && pmType(pmById(id)) !== "cash")),
+      has_backup: !!d.meta.lastBackupAt,
+      platform: /android/i.test(ua) ? "android" : /iphone|ipad|ipod/i.test(ua) ? "ios" : "desktop",
+      display: isStandalone() ? "installed" : isInAppBrowser ? "in_app_browser" : "browser"
+    };
+  },
+  // Called when the app opens and right after the user agrees. Fails silently; retried next time.
+  async maybeSend(){
+    const s = Store.getStats();
+    if(!this.available || s.consent !== "yes" || !Store.get().setupDone || navigator.onLine === false) return;
+    if(s.lastSentAt && Date.now() - new Date(s.lastSentAt).getTime() < this.everyDays * 86400000) return;
+    if(!s.installId) Store.setStats({ installId: (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+      : "xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx".replace(/x/g, () => Math.floor(Math.random() * 16).toString(16)) });
+    try{
+      const res = await fetch(this.endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(this.summary()) });
+      if(res.ok) Store.setStats({ lastSentAt: new Date().toISOString() });
+    }catch(e){}
+  }
+};
 
 function showUpdateBar(){
   if(document.getElementById("updateBar")) return;
@@ -1209,6 +1279,15 @@ const Views = {
           <button class="list-row danger-row" data-action="openDelete"><span><b>Delete all data</b><small>Start over on this device</small></span><span aria-hidden="true">›</span></button>
         </section>
       </div>
+
+      ${Stats.available ? `<div class="settings-group">
+        <div class="group-label">Privacy</div>
+        <section class="card">
+          <label class="check"><input type="checkbox" data-action="statsConsent" ${Store.getStats().consent === "yes" ? "checked" : ""}> <span><b>Share anonymous usage stats</b></span></label>
+          <p class="muted small" style="margin:8px 0 0">Your records stay on your device. If this is on, the app sends a short summary about once a week to help improve it: how many entries you recorded, how many days you used the app, a rough size range for monthly sales and expenses (for example "under ₱50,000"), your app version, and whether you're on a phone or computer.</p>
+          <p class="muted small" style="margin:6px 0 0"><b>Never sent:</b> exact amounts, descriptions, category or payment method names, or anything that identifies you or your customers.</p>
+        </section>
+      </div>` : ""}
 
       <div class="settings-group">
         <div class="group-label">App</div>
@@ -1937,6 +2016,14 @@ function buildCsv(){
    ========================================================= */
 const Actions = {
   nav: el => go(el.dataset.view),
+  // Usage stats choice, from the dashboard banner or the Settings switch
+  statsConsent(el){
+    const yes = el.type === "checkbox" ? el.checked : el.dataset.v === "yes";
+    Store.setStats({ consent: yes ? "yes" : "no" });
+    render();
+    if(yes){ toast("Thank you! Anonymous stats are on."); Stats.maybeSend(); }
+    else if(el.type === "checkbox") toast("Anonymous stats are off.");
+  },
   dashMode: el => { ui.dashMode = el.dataset.v; render(); },
   dashStep(el){
     const d = Number(el.dataset.d);
@@ -2139,6 +2226,7 @@ Store.init().then(async () => {
   requestPersistentStorage();
   const shown = await showUpdateNotice();
   if(!shown && Store.get().setupDone) setTimeout(checkMilestones, 600);
+  Stats.maybeSend();
 });
 </script>
 </body>
