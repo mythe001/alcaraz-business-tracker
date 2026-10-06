@@ -4,7 +4,7 @@
 const VERSION = new URL(self.location).searchParams.get("v") || "dev";
 const CACHE = "abt-" + VERSION;
 const ASSETS = [
-  "./", "./index.html", "./gcash-qr.png", "./manifest.webmanifest",
+  "./", "./index.html", "./gcash-qr.png", "./bpi-qr.png", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png",
   "./icons/apple-touch-icon.png", "./icons/favicon-32.png"
 ];

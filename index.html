@@ -467,9 +467,9 @@ const CONFIG = {
   appName: "Alcaraz Business Tracker",
   tagline: "Simple numbers tracking for small businesses",
   author: "Jesse Alcaraz",
-  version: "0.8.0",
+  version: "0.9.0",
   // Shown once in the update notice after each new version. Leave "" to show only the safety message.
-  releaseNote: "You can now choose to share anonymous usage stats to help improve the app. Your records still stay on your device.",
+  releaseNote: "Negosyo Tools is here: the Pinoy Business Toolkit, with video lessons, a product costing calculator and a break-even calculator. Tap Negosyo Tools in the menu to see what's inside.",
   backupReminderDays: 14,
   beta: true, // shows the "Public Beta" badge
   gcashQr: "gcash-qr.png", // image file uploaded alongside index.html
@@ -1075,8 +1075,9 @@ const NAV = [
   { view: "transactions", label: "Transactions", short: "Transactions" },
   { view: "summary", label: "Summary", short: "Summary" }
 ];
-// The Learn section (paid tools and lessons) is still being built: for now it only shows on a local test copy
-const TOOLKIT_ON = ["localhost", "127.0.0.1"].includes(location.hostname);
+// The Toolkit ("Negosyo Tools") is switched on for everyone since v0.9.0. IS_LOCAL marks the local test copy.
+const IS_LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname);
+const TOOLKIT_ON = true;
 const TOOLKIT_LABEL = "Negosyo Tools"; // menu name; "Tools" is the short form for the phone's bottom bar
 const TOOL_VIEWS = ["costing", "breakeven", "approvals", "lesson"];
 if(TOOLKIT_ON) NAV.push({ view: "learn", label: TOOLKIT_LABEL, short: "Tools" });
@@ -1405,22 +1406,12 @@ const Views = {
           <p class="muted small">Version ${esc(CONFIG.version)}</p>
         </section>
       </div>
-
       <div class="settings-group">
-        <div class="group-label">Learn</div>
+        <div class="group-label">${esc(TOOLKIT_LABEL)}</div>
         <section class="card">
-          <p style="margin:0 0 6px"><b>📚 Accounting for Business Owners</b></p>
-          <p class="muted" style="margin:0 0 12px">Want to understand your numbers better? Join my online course — practical, simple, and made for Pinoy business owners.</p>
-          <a class="btn primary" href="${esc(CONFIG.links.course)}" target="_blank" rel="noopener">Enroll now</a>
-        </section>
-      </div>
-
-      <div class="settings-group">
-        <div class="group-label">Support</div>
-        <section class="card">
-          <p style="margin:0 0 6px"><b>Help me keep building.</b></p>
-          <p class="muted" style="margin:0 0 12px">This is a free project, and your support helps me keep improving it and creating more useful tools for small business owners.</p>
-          <button class="btn" data-action="openSupport">💗 Support this project</button>
+          <p style="margin:0 0 6px"><b>📚 ${esc(TOOLKIT.name)}</b></p>
+          <p class="muted" style="margin:0 0 12px">Want to understand your numbers better? Get the complete video course, a product costing calculator, a break-even calculator and ready-to-use Google Sheets, made for Pinoy business owners.</p>
+          <button class="btn primary" data-action="nav" data-view="learn">${TK.isMember() ? "Open Negosyo Tools" : "See what's inside"}</button>
         </section>
       </div>`;
   }
@@ -1449,7 +1440,6 @@ function render(){
       ${sideLinks}
       <div class="side-sep"></div>
       <button class="side-link ${ui.view === "settings" ? "on" : ""}" data-action="nav" data-view="settings">${ICONS.settings}Settings</button>
-      <div class="side-foot"><button data-action="openSupport">Support this project</button></div>
     </aside>
     <div>
       <header class="topbar"><span class="brand-name">${esc(CONFIG.appName)}</span>${CONFIG.beta ? `<span class="beta">Public Beta</span>` : ""}</header>
@@ -2319,7 +2309,7 @@ const TKA = {
 TKA.load();
 
 // Members only. (On the local test copy a "view as member" switch can stand in before signing in.)
-TK.isMember = () => TKA.isMember() || (TOOLKIT_ON && !TKA.signedIn() && !!ui.tkPreviewMember);
+TK.isMember = () => TKA.isMember() || (IS_LOCAL && !TKA.signedIn() && !!ui.tkPreviewMember);
 
 function openToolkitPitch(){
   const ov = openOverlay(`<div class="dialog tk-pitch">
@@ -2490,7 +2480,7 @@ Views.learn = function(){
     ${TOOLKIT.modules.map(m => group(m.title, m.lessons.map(l => row(l.title, l.sub, "tkLesson", `data-key="${l.key}"`)).join(""))).join("")}
     ${group("Google Sheets", TOOLKIT.sheets.map(s => row(s.title, s.sub, "tkOpenSheet", `data-key="${s.key}"`)).join(""))}
     ${signedIn ? `<p class="muted small" style="margin:18px 0 0">Signed in as <b>${esc(me.email)}</b>. <button class="btn small-btn" data-action="tkSignOut">Sign out</button></p>`
-      : TOOLKIT_ON ? `<p class="muted small" style="margin:18px 0 0">Preview only (local test copy): viewing as <b>${member ? "member" : "visitor"}</b>.
+      : IS_LOCAL ? `<p class="muted small" style="margin:18px 0 0">Preview only (local test copy): viewing as <b>${member ? "member" : "visitor"}</b>.
           <button class="btn small-btn" data-action="tkPreviewMember">View as ${member ? "visitor" : "member"}</button></p>` : ""}`;
 };
 
@@ -2761,9 +2751,6 @@ Views.breakeven = function(){
     </section>`;
 };
 
-// GCash QR lives in a separate image file next to index.html (see CONFIG.gcashQr)
-const GCASH_QR = CONFIG.gcashQr;
-
 function openDeleteDialog(){
   const ov = openOverlay(`<div class="dialog delete-dialog">
     <h2>Delete all data?</h2>
@@ -2809,25 +2796,6 @@ function openDeleteDialog(){
     toast("All data deleted.");
   });
   $("#delCancel").focus();
-}
-
-function openSupport(){
-  const ov = openOverlay(`<div class="dialog support">
-    <h2>Enjoying Alcaraz Business Tracker? 💗</h2>
-    <div class="body">
-      <p>This tool is free and will stay free.</p>
-      <p>If it has helped you keep your business numbers organized, you can help me keep improving it.</p>
-    </div>
-    <img class="qr" src="${GCASH_QR}" alt="GCash QR code for supporting the project">
-    <p class="qr-caption">Scan with GCash to support the project</p>
-    <a class="btn block" href="${GCASH_QR}" download="alcaraz-business-tracker-gcash-qr.png">Save QR to your phone</a>
-    <p class="qr-hint">On your phone? Save the QR, then open GCash and choose Upload QR.</p>
-    <p class="thanks">Any amount is appreciated. Salamat for helping me keep this project free. 🙏</p>
-    <div class="actions"><button class="btn ghost block" id="dlgSecondary">Maybe Later</button></div>
-  </div>`, true);
-  overlayClose = () => closeOverlay();
-  ov.querySelector("#dlgSecondary").addEventListener("click", closeOverlay);
-  ov.querySelector("#dlgSecondary").focus();
 }
 
 /* =========================================================
@@ -3212,7 +3180,6 @@ const Actions = {
     const ok = await offerFile(`alcaraz-business-tracker-${todayISO()}.csv`, buildCsv(), "text/csv");
     if(ok) toast("CSV exported.");
   },
-  openSupport,
   openDelete: () => openDeleteDialog(),
   hideBanner(el){ session[el.dataset.b] = true; render(); },
   async installApp(){
