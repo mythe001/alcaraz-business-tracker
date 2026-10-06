@@ -3180,10 +3180,16 @@ const Actions = {
     if(TK.isMember()){ TKA.watched()[ui.tkLesson] = true; TKA.save(); TKA.log("lesson", ui.tkLesson); }
     if(ui.view === "lesson"){ render(); window.scrollTo(0, 0); } else go("lesson");
   },
-  tkOpenSheet(el){
-    const c = TKA.state.content, url = (c.resources && c.resources[el.dataset.key]) || c[el.dataset.key];
-    if(url){ TKA.log("resource", el.dataset.key); window.open(url, "_blank", "noopener"); }
-    else toast("Connect to the internet once to load this.");
+  async tkOpenSheet(el){
+    const key = el.dataset.key, find = () => { const c = TKA.state.content; return (c.resources && c.resources[key]) || c[key]; };
+    let url = find(), fetched = false;
+    // A resource added since this device last checked: fetch the member links again
+    if(!url && navigator.onLine !== false){ try{ await TKA.refresh(); }catch(e){} url = find(); fetched = true; }
+    if(!url){ toast(navigator.onLine === false ? "You're offline. Connect to the internet to open this." : "This couldn't be opened. Please try again."); return; }
+    // Phones block a new tab that opens after a wait, so after fetching we ask for one more tap
+    if(fetched){ toast("Ready. Tap it once more to open."); return; }
+    TKA.log("resource", key);
+    window.open(url, "_blank", "noopener");
   },
   // Admin: manage content
   async tkManageLoad(){
@@ -3516,12 +3522,13 @@ Store.init().then(async () => {
   Stats.maybeSend();
   // Toolkit: finish a sign-in, or quietly re-check a known member's status when online
   if(backFromGoogle) Actions.tkAfterSignIn();
-  // The public list of lessons and resources (admins can change it at any time)
-  if(navigator.onLine !== false) TKA.loadCatalog().then(() => { if(ui.view === "learn" || ui.view === "lesson") render(); }).catch(() => {});
   else if(TKA.state.session && navigator.onLine !== false) TKA.refresh().then(async () => {
     if(TKA.isAdmin()){ await Actions.tkAdminLoad(); render(); } // for the "waiting for approval" count on the menu
     else if(ui.view === "learn" || TOOL_VIEWS.includes(ui.view)) render();
   }).catch(() => {});
+  // The public list of lessons and resources (admins can change it at any time). Kept as its own statement:
+  // it must not sit between the "if" and "else" above, or the member refresh stops running.
+  if(navigator.onLine !== false) TKA.loadCatalog().then(() => { if(ui.view === "learn" || ui.view === "lesson") render(); }).catch(() => {});
 });
 </script>
 </body>
