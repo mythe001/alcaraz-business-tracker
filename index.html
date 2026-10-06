@@ -81,7 +81,7 @@ main{max-width:960px;margin:0 auto;padding:12px 18px 120px}
 .page-head h1{font-size:1.6rem;font-weight:800;letter-spacing:-.01em}
 
 .bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom,0px)}
-.bottomnav .in{display:grid;grid-template-columns:repeat(4,1fr);max-width:600px;margin:0 auto}
+.bottomnav .in{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;max-width:600px;margin:0 auto}
 .bottomnav button{border:0;background:none;padding:10px 4px 12px;font-size:.78rem;font-weight:600;color:var(--text-3);display:flex;flex-direction:column;align-items:center;gap:3px}
 .bottomnav button.on{color:var(--brand)}
 .bottomnav svg,.sidebar svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -348,6 +348,76 @@ table.tx th.amt{text-align:right}
 .drill-bal{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;font-weight:700;background:var(--surface-2);border-radius:10px;margin:8px 0}
 .entry-amt{text-align:right}
 .entry-run{display:block;font-size:.78rem;font-weight:500;color:var(--text-3)}
+.tk-head{justify-content:flex-start}
+.tk-head h1{flex-basis:100%}
+.tk-back{padding-left:0}
+.tk-get{margin-left:auto;text-decoration:none}
+.tk-chips{display:flex;flex-wrap:wrap;gap:8px}
+.tk-tabs{display:grid;margin:-6px 0 14px;max-width:100%}
+.tk-tabs button{font-size:.88rem;padding:8px 10px}
+.tk-legend{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--text-2);margin:0 0 12px}
+.tk-legend i{display:inline-block;width:18px;height:18px;border-radius:5px;border:1px solid var(--border-strong)}
+.tk-legend i.in{background:rgba(250,204,21,.16);border-color:rgba(202,138,4,.45)}
+.tk-legend i.calc{margin-left:12px}
+.tk-title{display:flex;align-items:center;gap:10px;margin:14px 0 10px;font-weight:700}
+.tk-title input{flex:1;min-width:0;min-height:42px;padding:8px 10px;border-radius:8px;border:1px solid rgba(202,138,4,.45);background:rgba(250,204,21,.16);color:inherit;font:inherit;font-weight:700}
+.tk-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:6px}
+.tk-del{margin-left:auto}
+.tk-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;margin-bottom:10px}
+.tk-bar:not(:first-child){margin-top:20px}
+.tk-bar h2,.tk-bar h3{margin:0}
+.tk-bar h3{font-size:.95rem;font-weight:700;color:var(--text-2)}
+.tk-tools{display:flex;flex-wrap:wrap;gap:8px}
+.tk-alt{border-style:dashed}
+.tk-empty{border:1px dashed var(--border-strong);border-radius:12px;padding:22px 16px;text-align:center}
+.tk-empty p{margin:0 0 12px;color:var(--text-2)}
+.tk-empty .tk-tools{justify-content:center}
+.tk-sheet tr.none td{height:auto;padding:14px 10px;color:var(--text-3);text-align:center}
+.tk-sheet tr.none td.x{padding:0}
+.tk-pick small{display:block;font-size:.82rem;color:var(--text-2)}
+.tk-offer{background:var(--brand-soft);margin-bottom:18px}
+.tk-section{margin:4px 0 14px 4px;font-size:1.05rem;letter-spacing:0;text-transform:none;color:var(--text)}
+.tk-lock{font-size:1rem!important;opacity:.7}
+.tk-pitch ul{margin:10px 0;padding-left:20px}
+.tk-pitch li{margin:4px 0}
+.tk-price{font-size:1.05rem}
+.tk-price b{font-size:1.5rem}
+.tk-pay{max-height:calc(100% - 24px);overflow:auto;overscroll-behavior:contain}
+.tk-pay .qr{display:block;width:100%;max-width:260px;margin:12px auto;border-radius:12px}
+.tk-paypanel{margin-top:12px}
+.tk-send{text-decoration:none;text-align:center}
+.tk-payrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.tk-payrow small{display:block;font-size:.78rem;color:var(--text-2)}
+.tk-payrow b{font-size:1.1rem}
+.tk-msg{margin:0;padding:10px 12px;border-radius:10px;background:var(--surface-2);font:inherit;font-size:.88rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.tk-video{position:relative;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden}.tk-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.tk-lessonnav{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}.tk-lessonnav .btn{max-width:100%;white-space:normal;text-align:left}.tk-note{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--expense-soft);font-size:.9rem}
+/* Spreadsheet-style tables. Light row lines only; cells you type in are tinted fields, computed cells are plain.
+   They scroll sideways on small screens with the first column kept in view. */
+.tk-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stack > .card{min-width:0}
+.tk-sheet{border-collapse:separate;border-spacing:0;width:100%;font-size:.92rem}
+.tk-sheet th{font-size:.74rem;font-weight:700;color:var(--text-2);text-align:left;vertical-align:bottom;padding:8px 10px;border-bottom:2px solid var(--border-strong);background:var(--surface)}
+.tk-sheet th.num{text-align:right}
+.tk-sheet th small{display:block;font-weight:500;color:var(--text-3)}
+.tk-sheet th.on{color:var(--brand);border-bottom-color:var(--brand)}
+.tk-sheet td{height:46px;padding:0;border-bottom:1px solid var(--border);background-color:var(--surface)}
+.tk-sheet td.in{padding:4px}
+.tk-sheet td input,.tk-sheet td select{display:block;width:100%;min-width:84px;height:36px;padding:0 8px;border:1px solid rgba(202,138,4,.38);border-radius:7px;background:rgba(250,204,21,.14);font:inherit;color:inherit}
+.tk-sheet td input:focus,.tk-sheet td select:focus{outline:2px solid var(--brand);outline-offset:0;background:var(--surface)}
+.tk-sheet td input[data-tk-num],.tk-sheet td.num{text-align:right}
+.tk-sheet td.calc{padding:0 12px;white-space:nowrap}
+.tk-sheet td.lbl{padding:0 10px}
+.tk-sheet tr.total td{font-weight:800;border-top:1px solid var(--border-strong)}
+.tk-sheet tr.key td{background-color:var(--brand-soft);font-weight:800;font-size:1.05rem;border-bottom:0}
+.tk-sheet tr.key td:first-child{border-radius:10px 0 0 10px}
+.tk-sheet tr.key td:nth-last-child(2){border-radius:0 10px 10px 0}
+.tk-sheet tr.add td{height:auto;padding:4px 6px}
+.tk-sheet th.x,.tk-sheet td.x,.tk-sheet tr.key td.x,.tk-sheet tr.total td.x{border:0;background:transparent;width:36px;min-width:36px;padding:0 0 0 6px}
+.tk-sheet th:first-child,.tk-sheet td:first-child{position:sticky;left:0;z-index:1}
+/* The row under the cursor, and the row being typed in, are highlighted */
+.tk-sheet tbody tr:not(.add):hover td:not(.x){background-image:linear-gradient(rgba(37,99,235,.07),rgba(37,99,235,.07))}
+.tk-sheet tbody tr:focus-within td:not(.x){background-image:linear-gradient(rgba(37,99,235,.1),rgba(37,99,235,.1))}
+.tk-x{width:28px;height:28px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-2);font-size:1rem;line-height:1}
 .rp-title{margin-top:18px}
 .rp-head{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);margin-top:10px}
 .rp-sub{display:block;font-size:.78rem;font-weight:400;color:var(--text-3)}
@@ -404,9 +474,11 @@ const CONFIG = {
   beta: true, // shows the "Public Beta" badge
   gcashQr: "gcash-qr.png", // image file uploaded alongside index.html
   links: {
-    profitabilityReview: "https://m.me/YOUR_PAGE?ref=tracker_profitability", // placeholder
-    accountingSystem:    "https://m.me/YOUR_PAGE?ref=tracker_system",        // placeholder
-    course:              "https://forms.gle/CmBsXQLVDqmNRAMJ8"               // Accounting for Business Owners
+    profitabilityReview: "https://m.me/jrmalcaraz?ref=tracker_profitability",
+    accountingSystem:    "https://m.me/jrmalcaraz?ref=tracker_system",
+    course:              "https://forms.gle/CmBsXQLVDqmNRAMJ8",              // Accounting for Business Owners
+    // Where buyers send their proof of payment
+    toolkitMessenger: "https://m.me/jrmalcaraz",
   },
   modalCooldownDays: 3 // minimum days between milestone messages
 };
@@ -645,7 +717,21 @@ const Store = (() => {
       try{ return Object.assign({ consent: null, installId: null, lastSentAt: null }, JSON.parse(localStorage.getItem(STATS_KEY) || "{}")); }
       catch(e){ return { consent: null, installId: null, lastSentAt: null }; }
     },
-    setStats(patch){ try{ localStorage.setItem(STATS_KEY, JSON.stringify({ ...this.getStats(), ...patch })); }catch(e){} }
+    setStats(patch){ try{ localStorage.setItem(STATS_KEY, JSON.stringify({ ...this.getStats(), ...patch })); }catch(e){} },
+
+    // Learn tools (materials, recipes, break-even inputs). Saved with the records, so backups include them.
+    toolkit(){
+      const t = (data.toolkit && typeof data.toolkit === "object") ? data.toolkit : (data.toolkit = {});
+      if(!Array.isArray(t.materials)) t.materials = [];
+      if(!Array.isArray(t.products)) t.products = [];
+      t.products.forEach(p => { if(!Array.isArray(p.lines)) p.lines = []; });
+      if(!t.bep || typeof t.bep !== "object") t.bep = {};
+      if(!Array.isArray(t.bep.rows)) t.bep.rows = [];
+      if(!Array.isArray(t.bep.expenses)) t.bep.expenses = [];
+      return t;
+    },
+    saveToolkit(){ return commit(); },
+    newId: uid
   };
 })();
 
@@ -954,7 +1040,8 @@ const ICONS = {
   dashboard: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
   transactions: '<svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
   summary: '<svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
-  settings: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>'
+  learn: '<svg viewBox="0 0 24 24"><path d="M2 8l10-5 10 5-10 5z"/><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 8v6"/></svg>',
+  settings: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'
 };
 ICONS.ledger = '<svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>';
 
@@ -988,6 +1075,11 @@ const NAV = [
   { view: "transactions", label: "Transactions", short: "Transactions" },
   { view: "summary", label: "Summary", short: "Summary" }
 ];
+// The Learn section (paid tools and lessons) is still being built: for now it only shows on a local test copy
+const TOOLKIT_ON = ["localhost", "127.0.0.1"].includes(location.hostname);
+const TOOLKIT_LABEL = "Negosyo Tools"; // menu name; "Tools" is the short form for the phone's bottom bar
+const TOOL_VIEWS = ["costing", "breakeven", "approvals", "lesson"];
+if(TOOLKIT_ON) NAV.push({ view: "learn", label: TOOLKIT_LABEL, short: "Tools" });
 
 function monthNav(){
   return `<div class="mnav">
@@ -1280,12 +1372,21 @@ const Views = {
         </section>
       </div>
 
+      ${TOOLKIT_ON ? `<div class="settings-group">
+        <div class="group-label">Privacy: ${esc(TOOLKIT.name)}</div>
+        <section class="card">
+          <p class="muted small" style="margin:0">If you sign in to the ${esc(TOOLKIT.name)} with Google, we keep your Google name and email, and the payment method and reference number you submit, so we can confirm your payment and manage your access. We don't use them for anything else.</p>
+          <p class="muted small" style="margin:6px 0 0"><b>Still only on this device:</b> your sales and expense records, and everything you enter in the calculators (materials, recipes, prices and expenses).</p>
+        </section>
+      </div>` : ""}
+
       ${Stats.available ? `<div class="settings-group">
         <div class="group-label">Privacy</div>
         <section class="card">
           <label class="check"><input type="checkbox" data-action="statsConsent" ${Store.getStats().consent === "yes" ? "checked" : ""}> <span><b>Share anonymous usage stats</b></span></label>
           <p class="muted small" style="margin:8px 0 0">Your records stay on your device. If this is on, the app sends a short summary about once a week to help improve it: how many entries you recorded, how many days you used the app, a rough size range for monthly sales and expenses (for example "under ₱50,000"), your app version, and whether you're on a phone or computer.</p>
           <p class="muted small" style="margin:6px 0 0"><b>Never sent:</b> exact amounts, descriptions, category or payment method names, or anything that identifies you or your customers.</p>
+          <p class="muted small" style="margin:10px 0 0"><a href="?privacy" target="_blank" rel="noopener">Read the full privacy notice</a></p>
         </section>
       </div>` : ""}
 
@@ -1331,11 +1432,14 @@ const Views = {
    ========================================================= */
 function render(){
   const app = document.getElementById("app");
+  // "?privacy" shows the public privacy notice on its own, without the app around it
+  if(/[?&]privacy(=|&|$)/.test(location.search)){ app.innerHTML = Views.privacy(); document.title = "Privacy Notice · " + CONFIG.appName; return; }
   const d = Store.get();
   if(!d.setupDone){ app.innerHTML = Views.setup(); return; }
 
-  const sideLinks = NAV.map(n => `<button class="side-link ${ui.view === n.view ? "on" : ""}" data-action="nav" data-view="${n.view}" ${ui.view === n.view ? 'aria-current="page"' : ""}>${ICONS[n.view]}${n.label}</button>`).join("");
-  const bottom = [...NAV, { view: "settings", short: "Settings" }].map(n => `<button class="${ui.view === n.view ? "on" : ""}" data-action="nav" data-view="${n.view}" ${ui.view === n.view ? 'aria-current="page"' : ""}>${ICONS[n.view]}${n.short}</button>`).join("");
+  const navView = TOOL_VIEWS.includes(ui.view) ? "learn" : ui.view; // tools sit under Learn in the menu
+  const sideLinks = NAV.map(n => `<button class="side-link ${navView === n.view ? "on" : ""}" data-action="nav" data-view="${n.view}" ${navView === n.view ? 'aria-current="page"' : ""}>${ICONS[n.view]}${n.label}${n.view === "learn" ? tkBadge() : ""}</button>`).join("");
+  const bottom = [...NAV, { view: "settings", short: "Settings" }].map(n => `<button class="${navView === n.view ? "on" : ""}" data-action="nav" data-view="${n.view}" ${navView === n.view ? 'aria-current="page"' : ""}>${ICONS[n.view]}${n.short}${n.view === "learn" ? tkBadge() : ""}</button>`).join("");
 
   app.innerHTML = `<div class="shell">
     <aside class="sidebar" aria-label="Main navigation">
@@ -1353,7 +1457,8 @@ function render(){
     </div>
   </div>
   <nav class="bottomnav" aria-label="Main navigation"><div class="in">${bottom}</div></nav>
-  <button class="fab" data-action="openAdd" aria-label="Add Transaction">＋</button>`;
+  ${navView === "learn" ? "" : `<button class="fab" data-action="openAdd" aria-label="Add Transaction">＋</button>`}`;
+  if(TOOL_VIEWS.includes(ui.view)) TK.refresh();
 }
 function go(view){
   if(view !== ui.view){
@@ -1373,7 +1478,7 @@ function go(view){
    is one browser-history entry.
    ========================================================= */
 let navBusy = 0; // non-zero while our own history.go() is in flight
-const isView = v => v === "settings" || NAV.some(n => n.view === v);
+const isView = v => v === "settings" || NAV.some(n => n.view === v) || (TOOLKIT_ON && TOOL_VIEWS.includes(v));
 const histState = () => (history.state && history.state.abt) ? history.state : null;
 const histDepth = () => { const s = histState(); return s ? s.depth : 0; };
 const overlayOpen = () => !!document.getElementById("overlayRoot").firstElementChild;
@@ -1839,6 +1944,823 @@ function openStatement(pmId, month){
 }
 let drillMonth = null;
 
+/* =========================================================
+   LEARN TOOLS — Product Cost & Pricing, Break-even & Profitability.
+   Web versions of the course's Google Sheets. Everything is
+   computed and saved on the device, like the records.
+   Inputs carry data-tk="path" and save as you type; results carry
+   data-tko="key" and are refreshed in place (no redraw while typing).
+   ========================================================= */
+const TK = {
+  VAT: 0.12,
+  num(v){ const n = parseFloat(String(v ?? "").replace(/[,₱\s]/g, "")); return isFinite(n) ? n : 0; },
+  money4(n){ return "₱" + n.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 4 }); },
+  pct(n){ return (n * 100).toLocaleString("en-PH", { maximumFractionDigits: 1 }) + "%"; },
+  val(n){ return n ? String(n) : ""; },
+
+  // Cost of one unit (gram, ml, piece) of a material = pack price ÷ pack size
+  unitCost(m){ const size = TK.num(m.packSize); return size > 0 ? TK.num(m.packPrice) / size : 0; },
+
+  // A product's cost per piece and pricing.
+  //   recipe cost  = materials + direct labor + overhead (the last two are optional)
+  //   target price = cost per piece ÷ (1 − margin), before VAT; VAT is added on top if switched on
+  // Labor and overhead are each marked fixed or variable. Break-even only uses the variable part
+  // (varPerPiece): fixed labor/overhead belongs with the fixed expenses there, not in the margin.
+  product(p){
+    const mats = Store.toolkit().materials;
+    const lines = p.lines.map(l => {
+      const m = mats.find(x => x.id === l.materialId);
+      const unitCost = m ? TK.unitCost(m) : 0;
+      return { id: l.id, unit: m ? (m.unit || "") : "", unitCost, cost: unitCost * TK.num(l.qty) };
+    });
+    const materials = lines.reduce((a, l) => a + l.cost, 0);
+    const labor = Math.max(0, TK.num(p.labor)), overhead = Math.max(0, TK.num(p.overhead));
+    const batch = materials + labor + overhead;
+    const makes = TK.num(p.makes) > 0 ? TK.num(p.makes) : 1;
+    const perPiece = batch / makes;
+    const varPerPiece = (materials + (p.laborVariable ? labor : 0) + (p.overheadVariable ? overhead : 0)) / makes;
+    const margin = TK.num(p.margin) / 100;
+    const target = perPiece > 0 && margin < 1 ? perPiece / (1 - margin) : 0;
+    const vatRate = p.vat ? TK.VAT : 0;
+    const charged = TK.num(p.price);                                 // what the customer pays, if entered
+    const price = charged > 0 ? charged / (1 + vatRate) : target;    // selling price before VAT
+    return { lines, materials, labor, overhead, batch, makes, perPiece, varPerPiece, fixedPerPiece: perPiece - varPerPiece,
+      target, vat: target * vatRate, targetWithVat: target * (1 + vatRate), price, priceWithVat: price * (1 + vatRate),
+      actualMargin: price > 0 ? (price - perPiece) / price : 0 };
+  },
+
+  // Break-even and profitability across all products for one month.
+  //   contribution margin % = (sales − variable product costs − expenses that vary with sales) ÷ sales
+  //   sales needed          = (fixed expenses + desired net profit) ÷ contribution margin %
+  // then split per product by its share of sales.
+  bep(){
+    const t = Store.toolkit(), b = t.bep;
+    const rows = b.rows.map(r => {
+      const p = r.productId ? t.products.find(x => x.id === r.productId) : null;
+      const pc = p ? TK.product(p) : null;
+      const cost = pc ? pc.varPerPiece : TK.num(r.cost), price = pc ? pc.price : TK.num(r.price), units = TK.num(r.units);
+      return { id: r.id, linked: !!p, name: p ? p.name : r.name, cost, price, units, fixedPerPiece: pc ? pc.fixedPerPiece : 0,
+        sales: units * price, cogs: units * cost, gp: units * (price - cost), margin: price > 0 ? (price - cost) / price : 0 };
+    });
+    const sum = (list, f) => list.reduce((a, x) => a + f(x), 0);
+    const sales = sum(rows, r => r.sales), gp = sum(rows, r => r.gp);
+    const fixed = sum(b.expenses.filter(e => !e.variable), e => TK.num(e.amount));
+    const variable = sum(b.expenses.filter(e => e.variable), e => TK.num(e.amount));
+    const target = Math.max(0, TK.num(b.targetProfit));
+    const cm = sales > 0 ? (gp - variable) / sales : 0;
+    const needed = cm > 0 ? (fixed + target) / cm : 0;
+    rows.forEach(r => {
+      r.mix = sales > 0 ? r.sales / sales : 0;
+      r.needSales = r.mix * needed;
+      r.needUnits = r.price > 0 ? r.needSales / r.price : 0;
+    });
+    return { rows, units: sum(rows, r => r.units), sales, cogs: sum(rows, r => r.cogs), gp, fixed, variable, target, cm, needed, net: gp - variable - fixed };
+  },
+
+  // Follow a path like "products.<id>.lines.<id>.qty"; arrays are searched by id
+  resolve(path){
+    const parts = path.split(".");
+    let node = parts[0] === "draft" ? { draft: ui.tkDraft && ui.tkDraft.data } : Store.toolkit();
+    for(let i = 0; i < parts.length - 1; i++){
+      node = Array.isArray(node) ? node.find(x => x.id === parts[i]) : node[parts[i]];
+      if(node == null) return null;
+    }
+    return { node, key: parts[parts.length - 1] };
+  },
+  saveTimer: null,
+  saveSoon(){ clearTimeout(TK.saveTimer); TK.saveTimer = setTimeout(() => Store.saveToolkit(), 400); },
+
+  // The product sheet edits a copy (the draft). Nothing is kept until Save is tapped.
+  // The draft survives moving around the app; it is only dropped on Save, Cancel, or opening another product.
+  openDraft(product){
+    const data = product ? JSON.parse(JSON.stringify(product))
+      : { name: "", makes: 1, margin: 0, price: 0, labor: 0, overhead: 0, laborVariable: false, overheadVariable: false, vat: false, lines: [] };
+    if(!Array.isArray(data.lines)) data.lines = [];
+    ui.tkDraft = { id: product ? product.id : null, data, base: JSON.stringify(data) };
+  },
+  dirty(){ const d = ui.tkDraft; return !!d && JSON.stringify(d.data) !== d.base; },
+  // Before the draft is replaced or dropped: ask if it has unsaved changes
+  async dropOk(){
+    return !TK.dirty() || await confirmDialog("Discard unsaved changes?", `Your changes to "${ui.tkDraft.data.name || "this product"}" have not been saved.`, "Discard");
+  },
+  tab(view){ return (ui.tkTab && ui.tkTab[view]) || (view === "costing" ? "materials" : "profit"); },
+
+  // Fill in every result on screen from the current inputs
+  refresh(){
+    const out = {}, t = Store.toolkit();
+    if(ui.view === "costing"){
+      t.materials.forEach(m => { out[`mat.${m.id}`] = TK.unitCost(m) ? TK.money4(TK.unitCost(m)) : ""; });
+      const p = TK.tab("costing") === "product" && ui.tkDraft ? ui.tkDraft.data : null;
+      out.draftStatus = !ui.tkDraft ? "" : TK.dirty() ? "Unsaved changes" : ui.tkDraft.id ? "All changes saved" : "Not saved yet";
+      if(p){
+        const c = TK.product(p);
+        c.lines.forEach(l => { out[`line.${l.id}.unit`] = l.unit || " "; out[`line.${l.id}.unitCost`] = l.unitCost ? TK.money4(l.unitCost) : ""; out[`line.${l.id}.cost`] = l.unitCost ? peso(l.cost) : ""; });
+        out.materials = peso(c.materials); out.batch = peso(c.batch); out.perPiece = TK.money4(c.perPiece);
+        out.target = c.target ? peso(c.target) : "—";
+        out.vat = c.target ? peso(c.vat) : "—"; out.targetWithVat = c.target ? peso(c.targetWithVat) : "—";
+        out.actual = c.price > 0 ? TK.pct(c.actualMargin) : "—";
+      }
+      document.querySelectorAll("option[data-mat]").forEach(o => { const m = t.materials.find(x => x.id === o.dataset.mat); if(m) o.textContent = m.name || "(unnamed)"; });
+      document.querySelectorAll("[data-prodname]").forEach(el => { const x = t.products.find(y => y.id === el.dataset.prodname); if(x) el.textContent = x.name || "(unnamed)"; });
+    }
+    if(ui.view === "breakeven"){
+      const r = TK.bep();
+      r.rows.forEach(x => {
+        out[`row.${x.id}.sales`] = peso(x.sales); out[`row.${x.id}.gp`] = peso(x.gp); out[`row.${x.id}.cogs`] = peso(x.cogs);
+        out[`row.${x.id}.cost`] = TK.money4(x.cost); out[`row.${x.id}.price`] = peso(x.price);
+        out[`row.${x.id}.margin`] = x.price > 0 ? TK.pct(x.margin) : "";
+        out[`need.${x.id}.name`] = x.name || "(unnamed)"; out[`need.${x.id}.mix`] = TK.pct(x.mix);
+        out[`need.${x.id}.weighted`] = TK.pct(x.mix * x.margin);
+        out[`need.${x.id}.sales`] = peso(x.needSales); out[`need.${x.id}.units`] = Math.ceil(x.needUnits - 1e-9).toLocaleString("en-PH");
+      });
+      out.units = r.units.toLocaleString("en-PH"); out.sales = peso(r.sales); out.cogs = peso(r.cogs); out.gp = peso(r.gp);
+      out.fixed = peso(r.fixed); out.variable = peso(r.variable); out.net = peso(r.net);
+      out.grossPct = r.sales > 0 ? TK.pct(r.gp / r.sales) : "—"; out.varPct = r.sales > 0 ? TK.pct(r.variable / r.sales) : "—";
+      out.cm = r.sales > 0 ? TK.pct(r.cm) : "—"; out.mixTotal = r.sales > 0 ? "100%" : "—";
+      out.needLabel = r.target > 0 ? `Monthly Sales Needed to Earn ${peso(r.target)}` : "Monthly Break-even Point in Sales";
+      out.needed = r.cm > 0 ? peso(r.needed) : "—";
+      // Pieces are rounded up per product, so the total is the sum of those whole numbers
+      out.needUnits = r.cm > 0 ? r.rows.reduce((a, x) => a + Math.ceil(x.needUnits - 1e-9), 0).toLocaleString("en-PH") : "—";
+      out.warn = !r.rows.length ? "Add at least one product in the Profitability tab to see your break-even."
+        : r.sales <= 0 ? "Enter how many you sell in a month in the Profitability tab to see your break-even."
+        : r.cm <= 0 ? "At these prices and costs, each sale doesn't cover its own variable costs, so selling more won't reach break-even. Review your prices or costs."
+        : r.sales >= r.needed ? (r.target > 0 ? "You are already at or above this goal at your current sales." : "You are already above break-even at your current sales.") : "";
+    }
+    document.querySelectorAll("[data-tko]").forEach(el => { const v = out[el.dataset.tko]; if(v !== undefined) el.textContent = v; });
+  }
+};
+
+// Typing in a tool input saves it and refreshes the results in place
+document.addEventListener("input", e => {
+  const path = e.target.dataset && e.target.dataset.tk;
+  if(!path) return;
+  const spot = TK.resolve(path);
+  if(!spot) return;
+  const el = e.target;
+  spot.node[spot.key] = el.dataset.tkBool !== undefined ? el.value === "1" : el.dataset.tkNum !== undefined ? TK.num(el.value) : el.value.slice(0, 60);
+  if(!path.startsWith("draft.")) TK.saveSoon(); // the product sheet is only kept when Save is tapped
+  if(el.dataset.tkRedraw !== undefined) render(); else TK.refresh(); // a few choices add or remove rows
+});
+
+// The row and column under the cursor are highlighted so wide tables are easy to follow
+document.addEventListener("mouseover", e => {
+  const td = e.target.closest && e.target.closest(".tk-sheet td");
+  document.querySelectorAll(".tk-sheet th.on").forEach(th => th.classList.remove("on"));
+  if(!td || td.colSpan > 1 || td.classList.contains("x")) return;
+  const th = td.closest("table").querySelectorAll("thead th")[td.cellIndex];
+  if(th && td.parentElement.cells.length === th.parentElement.cells.length) th.classList.add("on");
+});
+
+// Closing or reloading the page with an unsaved product sheet asks first
+window.addEventListener("beforeunload", e => { if(TK.dirty()){ e.preventDefault(); e.returnValue = ""; } });
+
+// The tools are laid out like the course's spreadsheets: tinted cells are typed in, plain cells are computed
+const tkCell = (path, value, opts = {}) => `<td class="in"><input data-tk="${path}" ${opts.num ? 'data-tk-num inputmode="decimal" autocomplete="off"' : 'maxlength="60"'} placeholder="${esc(opts.ph || "")}" value="${esc(opts.num ? TK.val(value) : (value || ""))}" aria-label="${esc(opts.label || "")}"></td>`;
+const tkPick = (path, on, labels, redraw) => `<td class="in"><select data-tk="${path}" data-tk-bool ${redraw ? "data-tk-redraw" : ""} aria-label="${esc(labels.join(" or "))}">
+  <option value="0" ${on ? "" : "selected"}>${labels[0]}</option><option value="1" ${on ? "selected" : ""}>${labels[1]}</option></select></td>`;
+const tkCalc = (key, text) => `<td class="calc ${text ? "" : "num"}" data-tko="${key}"></td>`;
+const tkX = (path, what) => `<td class="x"><button type="button" class="tk-x" data-action="tkRemove" data-path="${path}" aria-label="Remove ${what}">×</button></td>`;
+// Number columns have right-aligned headings, to sit above their right-aligned figures
+const TK_TEXT_COLS = /^(Ingredient Name|Purchase Unit|Unit of Measure|Name|Expense|Type|Product|Monthly Break-even|Sent|Approved|Email|Method|Payment|Reference|Action)/;
+const tkSheet = (head, body, minWidth, add) => `<div class="tk-scroll"><table class="tk-sheet" ${add ? `data-add="${add}"` : ""} style="min-width:${minWidth}px"><thead><tr>${head.map(h => `<th class="${TK_TEXT_COLS.test(h) ? "" : "num"}">${h}</th>`).join("")}<th class="x"></th></tr></thead><tbody>${body}</tbody></table></div>`;
+const tkBack = `<button class="btn ghost small-btn tk-back" data-action="nav" data-view="learn">‹ ${TOOLKIT_LABEL}</button>`;
+const tkGetSheet = url => url ? `<a class="btn small-btn tk-get" href="${esc(url)}" target="_blank" rel="noopener">Get the Google Sheet</a>` : "";
+// Admin only: how many payments are waiting, shown on the menu item
+const tkBadge = () => { const n = TKA.isAdmin() && ui.tkAdmin && ui.tkAdmin.data ? ui.tkAdmin.data.counts.pending : 0; return n ? `<span class="nav-badge" aria-label="${n} waiting for approval">${n}</span>` : ""; };
+// Calculator work lives on the device: say so, and offer the backup right there
+const tkSavedNote = () => `<p class="tk-saved muted small"><span>Your work here is saved on this device only. ${esc(lastBackupText())}.</span><button class="btn small-btn" data-action="backup">Back up now</button></p>`;
+const tkLegend = `<p class="tk-legend"><i class="in"></i> You type here <i class="calc"></i> Computed for you</p>`;
+// Buttons sit beside each table's heading, not inside the table. An empty table shows a short prompt instead.
+const tkBtn = (label, action, attrs = "", cls = "") => `<button type="button" class="btn small-btn ${cls}" data-action="${action}" ${attrs}>${label}</button>`;
+const tkBar = (title, tools, tag = "h2") => `<div class="tk-bar"><${tag}>${title}</${tag}><span class="tk-tools">${tools || ""}</span></div>`;
+const tkEmpty = (msg, tools) => `<div class="tk-empty"><p>${msg}</p><span class="tk-tools">${tools || ""}</span></div>`;
+const tkEmptyRow = (cols, msg) => `<tr class="none"><td colspan="${cols}">${msg}</td><td class="x"></td></tr>`;
+
+// Which month "Fill from Tracker" would use: last month, or this month if last month has no expenses. null if neither has any.
+function tkTrackerMonth(){
+  const last = shiftMonth(thisMonth(), -1);
+  if(Calc.monthTotals(last).expenses > 0) return last;
+  return Calc.monthTotals(thisMonth()).expenses > 0 ? thisMonth() : null;
+}
+
+// "Add product" in Break-even: pick saved products (their cost and price stay linked) or type one in
+function openProductChooser(){
+  const t = Store.toolkit(), b = t.bep;
+  const manual = () => Actions.tkAdd({ dataset: { what: "row" } });
+  const avail = t.products.filter(p => !b.rows.some(r => r.productId === p.id));
+  if(!avail.length) return manual();
+  const ov = openOverlay(`<div class="dialog"><h2>Add products</h2>
+    <div class="body"><p>Choose from the products you saved in Product Cost &amp; Pricing. Their cost and price stay linked.</p>
+      ${avail.map(p => { const c = TK.product(p); return `<label class="check tk-pick"><input type="checkbox" value="${p.id}"> <span><b>${esc(p.name || "(unnamed)")}</b><small>Variable cost ${TK.money4(c.varPerPiece)} · Price ${c.price > 0 ? peso(c.price) : "not set"}</small></span></label>`; }).join("")}
+    </div>
+    <div class="actions">
+      <button class="btn primary block" id="pcAdd">Add selected</button>
+      <button class="btn block" id="pcManual">Type one in manually</button>
+      <button class="btn ghost block" id="pcCancel">Cancel</button>
+    </div></div>`, true);
+  overlayClose = () => closeOverlay();
+  ov.querySelector("#pcCancel").addEventListener("click", closeOverlay);
+  ov.querySelector("#pcManual").addEventListener("click", () => { closeOverlay(); manual(); });
+  ov.querySelector("#pcAdd").addEventListener("click", () => {
+    const ids = [...ov.querySelectorAll("input:checked")].map(i => i.value);
+    if(!ids.length){ toast("Tick at least one product."); return; }
+    ids.forEach(id => b.rows.push({ id: Store.newId() + id.slice(-3), productId: id, units: 0 }));
+    closeOverlay(); Store.saveToolkit(); render();
+  });
+}
+
+// Enter in a table moves down the column, like a spreadsheet; on the last row it adds a new one
+document.addEventListener("keydown", e => {
+  if(e.key !== "Enter" || !e.target.matches || !e.target.matches(".tk-sheet td.in input")) return;
+  e.preventDefault();
+  const td = e.target.closest("td"), tr = td.parentElement, table = tr.closest("table");
+  const below = tr.nextElementSibling && tr.nextElementSibling.cells[td.cellIndex];
+  const box = below && tr.nextElementSibling.cells.length === tr.cells.length ? below.querySelector("input, select") : null;
+  if(box) box.focus();
+  else if(table.dataset.add && tr.querySelector(".tk-x")) Actions.tkAdd({ dataset: { what: table.dataset.add } });
+});
+
+const TK_ADD = {
+  material: tkBtn("＋ Add ingredient", "tkAdd", 'data-what="material"'),
+  line: tkBtn("＋ Add ingredient", "tkAdd", 'data-what="line"'),
+  row: tkBtn("＋ Add product", "tkAddProduct"),
+  expense: tkBtn("＋ Add expense", "tkAdd", 'data-what="expense"')
+};
+
+// Sheet tabs, like the tabs at the bottom of a spreadsheet
+const tkTabs = (view, tabs) => `<div class="seg tk-tabs" role="tablist">${tabs.map(([v, l]) => `<button role="tab" data-action="tkTab" data-view="${view}" data-v="${v}" class="${TK.tab(view) === v ? "on" : ""}" aria-selected="${TK.tab(view) === v}">${l}</button>`).join("")}</div>`;
+
+// What the Toolkit contains. Everyone can see this list; only members can open the items.
+const TOOLKIT = {
+  name: "Pinoy Business Toolkit",
+  price: "₱1,499",
+  tagline: "Practical lessons, calculators and ready-to-use tools to help Filipino business owners understand their numbers, improve their pricing and profitability, and make better business decisions.",
+  includes: [
+    "The complete 11-video course",
+    "Product Cost & Pricing Calculator",
+    "Break-even & Profitability Calculator",
+    "Google Sheets and templates",
+    "Future tools and resources added to the Toolkit"
+  ],
+  tools: [
+    { view: "costing", title: "Product Cost & Pricing Calculator", sub: "Know what each product costs to make, and what to charge for it" },
+    { view: "breakeven", title: "Break-even & Profitability Calculator", sub: "How much you need to sell to cover your expenses or reach a profit goal" }
+  ],
+  // tool: the calculator a module's lessons lead to. link: "manager" offers help with Manager.io.
+  // sub: the caption shown under each lesson title, based on the course slides.
+  modules: [
+    { title: "Start here", lessons: [
+      { key: "intro", title: "Introduction", sub: "What to expect from this course and how accounting can help you make better business decisions." }] },
+    { title: "Understanding your numbers", lessons: [
+      { key: "l1", title: "1 – Importance of Accounting", sub: "Understand why knowing your numbers matters, from making better decisions to managing cash and tracking profitability." },
+      { key: "l2", title: "2 – Basic Accounting Terms", sub: "Learn the essential accounting terms you need to understand what your business owns, owes, and earns." },
+      { key: "l3", title: "3 – The Financial Statements", sub: "Learn how to read the Income Statement, Balance Sheet, and Cash Flow Statement to understand your business's financial health." }] },
+    { title: "Costing and pricing", tool: "costing", lessons: [
+      { key: "l4", title: "4 – Product Costing", sub: "Learn how to compute the real cost of your products using materials, labor, and other production costs." },
+      { key: "l5", title: "5 – Pricing Strategies", sub: "Explore different pricing strategies and learn how to set prices that cover your costs and generate the profit you want." },
+      { key: "l6", title: "6 – Costing and Pricing for Other Businesses", sub: "See how costing and pricing work for service businesses, online sellers, and professional services, not just product-based businesses." }] },
+    { title: "Profitability", tool: "breakeven", lessons: [
+      { key: "l7", title: "7 – Computing Profitability", sub: "Learn how to calculate your actual profit and avoid the common mistake of treating cash flow as profitability." },
+      { key: "l8", title: "8 – Break-even Point", sub: "Find out how much you need to sell before your business starts making a profit." }] },
+    { title: "Running it properly", lessons: [
+      { key: "l9", title: "9 – Permits, Licenses & Taxation", sub: "Get an overview of the permits, registrations, income taxes, and business taxes that small business owners need to know about." },
+      { key: "l10", title: "10 – Bookkeeping for Business Control", sub: "Learn how simple records of sales, expenses, and cash flow can help you stay in control of your business." }] },
+    { title: "Bonus", link: "manager", lessons: [
+      { key: "l11", title: "11 – Sneak Peek: Manager.io", sub: "See how Manager.io can help you record sales and expenses and organize your business transactions in an accounting system." }] }
+  ],
+  sheets: [
+    { key: "costingSheet", title: "Product Costing & Pricing Sheet", sub: "Google Sheet — make your own copy" },
+    { key: "breakevenSheet", title: "Break-even and Profitability Sheet", sub: "Google Sheet — make your own copy" }
+  ]
+};
+
+/* =========================================================
+   TOOLKIT ACCOUNT — Google sign-in and membership (Supabase).
+   Only the Toolkit uses an account; the Tracker's records never
+   leave the device. The server decides who is a member: the app
+   can only call the tk_* functions, which answer for the signed-in
+   Google account. Statuses: signed_in → pending → active.
+   The last known status is kept on the device so a member's
+   calculators still open offline.
+   ========================================================= */
+const TKA = {
+  // The Toolkit lives in the "alcaraz-accounting-dev" Supabase project, for the local copy and the live site alike.
+  // (Decided 2026-10-06: it stays there until paying members justify its own project. Do not reset the tk_ tables.)
+  cfg: { url: "https://euuolfvjnlxikpzibrfm.supabase.co", key: "sb_publishable_Jdup1KVFE4W4PqYjG2-pNQ_EajwdbT2" },
+  KEY: "alcaraz-business-tracker-toolkit",
+  state: { session: null, me: null, content: {} },
+
+  load(){ try{ Object.assign(this.state, JSON.parse(localStorage.getItem(this.KEY) || "{}")); }catch(e){} },
+  save(){ try{ localStorage.setItem(this.KEY, JSON.stringify(this.state)); }catch(e){} },
+  signedIn(){ return !!(this.state.session && this.state.me); },
+  status(){ return this.state.me ? this.state.me.status : null; },
+  isAdmin(){ return !!(this.state.me && this.state.me.is_admin); },
+  isMember(){ return this.signedIn() && (this.state.me.status === "active" || this.isAdmin()); },
+
+  // Send the browser to Google; it comes back to this page with the session in the address
+  signIn(){
+    location.href = `${this.cfg.url}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(location.origin + location.pathname)}`;
+  },
+  // Called once at startup. Returns true if we just came back from Google.
+  takeReturn(){
+    const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+    if(!hash.get("access_token") && !hash.get("error")) return false;
+    history.replaceState(history.state, "", location.pathname + location.search); // keep tokens out of the address bar
+    if(hash.get("error")){
+      let why = hash.get("error_description") || "Sign-in was cancelled.";
+      try{ why = decodeURIComponent(why); }catch(e){}
+      // The provider appends a one-time code after the colon; it means nothing to the user
+      this.returnError = why.replace(/^(Unable to exchange external code).*/i, "$1. The Google sign-in settings need to be checked.");
+      return true;
+    }
+    this.state.session = { access_token: hash.get("access_token"), refresh_token: hash.get("refresh_token"),
+      expires_at: Date.now() + (Number(hash.get("expires_in")) || 3600) * 1000 };
+    this.state.me = null; this.state.content = {};
+    this.save();
+    return true;
+  },
+  async token(){
+    const s = this.state.session;
+    if(!s) throw new Error("Not signed in.");
+    if(Date.now() < s.expires_at - 60000) return s.access_token;
+    const res = await fetch(`${this.cfg.url}/auth/v1/token?grant_type=refresh_token`, { method: "POST",
+      headers: { apikey: this.cfg.key, "Content-Type": "application/json" }, body: JSON.stringify({ refresh_token: s.refresh_token }) });
+    if(!res.ok){
+      // The session can no longer be renewed: sign out on this device
+      if(res.status === 400 || res.status === 401 || res.status === 403){ this.state = { session: null, me: null, content: {} }; this.save(); }
+      throw new Error("Please sign in again.");
+    }
+    const j = await res.json();
+    this.state.session = { access_token: j.access_token, refresh_token: j.refresh_token, expires_at: Date.now() + (j.expires_in || 3600) * 1000 };
+    this.save();
+    return j.access_token;
+  },
+  async rpc(fn, args){
+    const res = await fetch(`${this.cfg.url}/rest/v1/rpc/${fn}`, { method: "POST",
+      headers: { apikey: this.cfg.key, Authorization: `Bearer ${await this.token()}`, "Content-Type": "application/json" }, body: JSON.stringify(args || {}) });
+    const j = await res.json().catch(() => null);
+    if(!res.ok) throw new Error((j && j.message) || "Something went wrong. Please try again.");
+    return j;
+  },
+  // Ask the server who we are and, for members, fetch the member-only links
+  async refresh(){
+    this.state.me = await this.rpc("tk_me");
+    if(this.isMember()){ try{ this.state.content = await this.rpc("tk_get_content"); }catch(e){} }
+    else this.state.content = {};
+    this.save();
+    return this.state.me;
+  },
+  async signOut(){
+    const s = this.state.session;
+    this.state = { session: null, me: null, content: {} }; this.save();
+    if(s){ try{ await fetch(`${this.cfg.url}/auth/v1/logout`, { method: "POST", headers: { apikey: this.cfg.key, Authorization: `Bearer ${s.access_token}` } }); }catch(e){} }
+  }
+};
+TKA.load();
+
+// Members only. (On the local test copy a "view as member" switch can stand in before signing in.)
+TK.isMember = () => TKA.isMember() || (TOOLKIT_ON && !TKA.signedIn() && !!ui.tkPreviewMember);
+
+function openToolkitPitch(){
+  const ov = openOverlay(`<div class="dialog tk-pitch">
+    <h2>${esc(TOOLKIT.name)}</h2>
+    <div class="body">
+      <p>${esc(TOOLKIT.tagline)}</p>
+      <ul>${TOOLKIT.includes.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+      <p class="tk-price"><b>${TOOLKIT.price}</b> one-time</p>
+    </div>
+    <div class="actions">
+      <button class="btn primary block" id="tkGo">Continue with Google</button>
+      <button class="btn ghost block" id="tkLater">Maybe later</button>
+    </div>
+    <p class="muted small" style="margin:10px 0 0;text-align:center">Already enrolled in the course? Sign in with the Google account you used.<br>We use your Google email only to manage your access.</p>
+  </div>`, true);
+  overlayClose = () => closeOverlay();
+  ov.querySelector("#tkLater").addEventListener("click", closeOverlay);
+  // The pop-up stays open while leaving for Google: closing it steps the browser history back, which would cancel the navigation
+  ov.querySelector("#tkGo").addEventListener("click", e => { if(navigator.onLine !== false && !isInAppBrowser) e.currentTarget.textContent = "Opening Google…"; Actions.tkSignIn(); });
+  ov.querySelector("#tkGo").focus();
+}
+
+// How to pay. Shown to someone who has signed in but is not a member yet.
+const TOOLKIT_PAY = {
+  accountName: "Jesse Roy M. Alcaraz",
+  methods: [
+    { id: "gcash", label: "GCash", numberLabel: "GCash Number", number: "0905-409-5396", qr: CONFIG.gcashQr, qrFile: "alcaraz-gcash-qr.png" },
+    { id: "bpi", label: "BPI", numberLabel: "BPI Account Number", number: "2519-0621-97", qr: "bpi-qr.png", qrFile: "alcaraz-bpi-qr.png" }
+  ]
+};
+
+function openToolkitPayment(){
+  const me = TKA.state.me || {};
+  let method = me.pay_method || "gcash";
+  const panel = m => `<div class="tk-paypanel ${m.id === method ? "" : "hidden"}" data-pay="${m.id}">
+      <div class="tk-payrow"><span><small>${m.numberLabel}</small><b class="num">${m.number}</b></span>
+        <button type="button" class="btn small-btn" data-copy="${m.number.replace(/\D/g, "")}">Copy</button></div>
+      <div class="tk-payrow"><span><small>Account Name</small><b>${esc(TOOLKIT_PAY.accountName)}</b></span></div>
+      <img class="qr" src="${m.qr}" alt="${m.label} QR code for ${esc(TOOLKIT_PAY.accountName)}">
+      <a class="btn block" href="${m.qr}" download="${m.qrFile}">Save QR to your phone</a>
+    </div>`;
+  const ov = openOverlay(`<form class="dialog tk-pay" novalidate>
+    <h2>Unlock the Toolkit</h2>
+    <p class="tk-price" style="margin:0 0 12px"><b>${TOOLKIT.price}</b> one-time</p>
+    <h3 class="sub-h">1. Send your payment</h3>
+    <div class="seg" role="group" aria-label="Payment method" style="width:100%">
+      ${TOOLKIT_PAY.methods.map(m => `<button type="button" data-paytab="${m.id}" class="${m.id === method ? "on" : ""}">${m.label}</button>`).join("")}
+    </div>
+    ${TOOLKIT_PAY.methods.map(panel).join("")}
+    <div class="tk-note"><b>Double-check the name before you send.</b> The account name should be <b>${esc(TOOLKIT_PAY.accountName)}</b>.</div>
+    <h3 class="sub-h" style="margin-top:16px">2. Tell us you've paid</h3>
+    <label class="field" style="margin-top:0"><span>Reference number from your <b data-paylabel>${method === "bpi" ? "BPI" : "GCash"}</b> receipt</span>
+      <input name="ref" inputmode="text" autocomplete="off" maxlength="40" placeholder="e.g. 1234 567 890123" value="${esc(me.pay_ref || "")}"></label>
+    <p class="hint">We match this number with our own records to confirm your payment. It will be linked to <b>${esc(me.email || "your Google account")}</b>.</p>
+    <p class="form-err" id="tkPayErr"></p>
+    <div class="actions">
+      <button type="submit" class="btn primary block">I've sent my payment</button>
+      <button type="button" class="btn ghost block" id="tkPayClose">Not now</button>
+    </div>
+    <p class="muted small" style="margin:10px 0 0;text-align:center"><b>3.</b> Once your payment is verified, the Toolkit unlocks for your Google account.</p>
+  </form>`, true);
+  overlayClose = () => closeOverlay();
+  ov.querySelector("#tkPayClose").addEventListener("click", closeOverlay);
+  ov.addEventListener("click", async e => {
+    const tab = e.target.closest("[data-paytab]");
+    if(tab){
+      method = tab.dataset.paytab;
+      ov.querySelectorAll("[data-paytab]").forEach(b => b.classList.toggle("on", b === tab));
+      ov.querySelectorAll("[data-pay]").forEach(p => p.classList.toggle("hidden", p.dataset.pay !== method));
+      ov.querySelector("[data-paylabel]").textContent = method === "bpi" ? "BPI" : "GCash";
+      return;
+    }
+    const copy = e.target.closest("[data-copy]");
+    if(copy){
+      try{ await navigator.clipboard.writeText(copy.dataset.copy); toast("Number copied."); }
+      catch(err){ toast("Couldn't copy. Please type the number."); }
+    }
+  });
+  const form = ov.querySelector("form");
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const err = msg => { form.querySelector("#tkPayErr").textContent = msg; };
+    const ref = form.ref.value.trim();
+    if(ref.length < 4){ err("Enter the reference number from your receipt."); form.ref.focus(); return; }
+    const btn = form.querySelector('[type="submit"]'); btn.disabled = true; err("");
+    try{
+      TKA.state.me = await TKA.rpc("tk_request", { p_method: method, p_ref: ref }); TKA.save();
+      closeOverlay(); render();
+      openToolkitPending();
+    }catch(ex){ btn.disabled = false; err(navigator.onLine === false ? "You're offline. Connect to the internet and try again." : ex.message); }
+  });
+}
+
+// After "I've sent my payment": confirmation, plus an optional ready-made Messenger note
+function openToolkitPending(){
+  const me = TKA.state.me || {};
+  const label = me.pay_method === "bpi" ? "BPI" : "GCash";
+  const note = `Hi Jesse, I paid for the ${TOOLKIT.name}.\nEmail: ${me.email}\n${label} reference number: ${me.pay_ref}`;
+  const ov = openOverlay(`<div class="dialog">
+    <h2>Thank you! Your payment is being verified.</h2>
+    <div class="body">
+      <p>We've recorded your <b>${label}</b> reference number <b>${esc(me.pay_ref || "")}</b> for <b>${esc(me.email || "")}</b>.</p>
+      <p>The Toolkit unlocks as soon as it's confirmed, usually within 24 hours. You don't need to do anything else.</p>
+      <p class="muted small">Want to follow up? You can send Jesse this note on Messenger:</p>
+      <pre class="tk-msg">${esc(note)}</pre>
+    </div>
+    <div class="actions">
+      <button class="btn block" id="tkCopyNote">Copy this note</button>
+      ${CONFIG.links.toolkitMessenger ? `<a class="btn block tk-send" href="${esc(CONFIG.links.toolkitMessenger)}" target="_blank" rel="noopener">Open Messenger</a>` : ""}
+      <button class="btn primary block" id="tkPendDone">Done</button>
+    </div>
+  </div>`, true);
+  overlayClose = () => closeOverlay();
+  ov.querySelector("#tkPendDone").addEventListener("click", closeOverlay);
+  ov.querySelector("#tkCopyNote").addEventListener("click", async () => {
+    try{ await navigator.clipboard.writeText(note); toast("Note copied."); }catch(err){ toast("Couldn't copy. Please type it in."); }
+  });
+}
+
+// Access removed by an admin: no payment screen, just how to get in touch
+function openToolkitRemoved(){
+  const ov = openOverlay(`<div class="dialog">
+    <h2>Your access was removed</h2>
+    <div class="body"><p>This Google account no longer has access to the ${esc(TOOLKIT.name)}. If you think this is a mistake, please message Jesse.</p></div>
+    <div class="actions">
+      ${CONFIG.links.toolkitMessenger ? `<a class="btn primary block tk-send" href="${esc(CONFIG.links.toolkitMessenger)}" target="_blank" rel="noopener">Message Jesse on Messenger</a>` : ""}
+      <button class="btn ghost block" id="tkRemovedClose">Close</button>
+    </div>
+  </div>`, true);
+  overlayClose = () => closeOverlay();
+  ov.querySelector("#tkRemovedClose").addEventListener("click", closeOverlay);
+}
+
+Views.learn = function(){
+  const member = TK.isMember(), me = TKA.state.me, signedIn = TKA.signedIn();
+  const mark = member ? `<span aria-hidden="true">›</span>` : `<span class="tk-lock" aria-label="Locked">🔒</span>`;
+  // Members open the item; everyone else gets the offer (or the payment steps once signed in)
+  const row = (title, sub, action, attrs = "") => `<button class="list-row" data-action="${member ? action : "tkLocked"}" ${member ? attrs : ""}><span><b>${esc(title)}</b>${sub ? `<small>${esc(sub)}</small>` : ""}</span>${mark}</button>`;
+  const group = (label, rows) => `<div class="settings-group"><div class="group-label">${esc(label)}</div><section class="card list-card">${rows}</section></div>`;
+
+  const banner = member ? ""
+    : !signedIn ? `<section class="card tk-offer">
+        <p style="margin:0 0 6px">${esc(TOOLKIT.tagline)}</p>
+        <p class="muted small" style="margin:0 0 12px">Browse what's inside below. <b>${TOOLKIT.price}</b> one-time to unlock everything.</p>
+        <button class="btn primary" data-action="tkLocked">Unlock the Toolkit</button>
+      </section>`
+    : me.status === "removed" ? `<section class="card tk-offer">
+        <p style="margin:0 0 6px"><b>Your access was removed.</b></p>
+        <p class="muted small" style="margin:0 0 12px">${esc(me.email)} no longer has access to the Toolkit. If you think this is a mistake, please message Jesse.</p>
+        ${CONFIG.links.toolkitMessenger ? `<a class="btn primary tk-send" href="${esc(CONFIG.links.toolkitMessenger)}" target="_blank" rel="noopener">Message Jesse on Messenger</a>` : ""}
+      </section>`
+    : me.status === "pending" ? `<section class="card tk-offer">
+        <p style="margin:0 0 6px"><b>Your payment is being verified.</b></p>
+        <p class="muted small" style="margin:0 0 12px">${me.pay_method === "bpi" ? "BPI" : "GCash"} reference number <b>${esc(me.pay_ref || "")}</b>, for ${esc(me.email)}. Everything below unlocks once it's confirmed, usually within 24 hours.</p>
+        <span class="tk-tools"><button class="btn primary small-btn" data-action="tkCheck">Check again</button><button class="btn small-btn" data-action="tkLocked">Change my payment details</button></span>
+      </section>`
+    : `<section class="card tk-offer">
+        <p style="margin:0 0 6px"><b>You're signed in.</b> One more step to unlock the Toolkit.</p>
+        <p class="muted small" style="margin:0 0 12px"><b>${TOOLKIT.price}</b> one-time, by GCash or BPI.</p>
+        <button class="btn primary" data-action="tkLocked">See how to pay</button>
+      </section>`;
+
+  return `<div class="page-head"><h1>${esc(TOOLKIT.name)}</h1></div>
+    ${banner}
+    ${TKA.isAdmin() ? group("Admin", `<button class="list-row" data-action="nav" data-view="approvals"><span><b>Approvals</b><small>${ui.tkAdmin && ui.tkAdmin.data && ui.tkAdmin.data.counts.pending ? `${ui.tkAdmin.data.counts.pending} waiting for approval` : "Verify payments and manage members"}</small></span><span aria-hidden="true">›</span></button>`) : ""}
+    ${group("Calculators", TOOLKIT.tools.map(x => row(x.title, x.sub, "nav", `data-view="${x.view}"`)).join(""))}
+    <div class="group-label tk-section">Lessons</div>
+    ${TOOLKIT.modules.map(m => group(m.title, m.lessons.map(l => row(l.title, l.sub, "tkLesson", `data-key="${l.key}"`)).join(""))).join("")}
+    ${group("Google Sheets", TOOLKIT.sheets.map(s => row(s.title, s.sub, "tkOpenSheet", `data-key="${s.key}"`)).join(""))}
+    ${signedIn ? `<p class="muted small" style="margin:18px 0 0">Signed in as <b>${esc(me.email)}</b>. <button class="btn small-btn" data-action="tkSignOut">Sign out</button></p>`
+      : TOOLKIT_ON ? `<p class="muted small" style="margin:18px 0 0">Preview only (local test copy): viewing as <b>${member ? "member" : "visitor"}</b>.
+          <button class="btn small-btn" data-action="tkPreviewMember">View as ${member ? "visitor" : "member"}</button></p>` : ""}`;
+};
+
+// Admin: verify payments and manage members. The server refuses these calls for anyone who is not an admin.
+Views.approvals = function(){
+  if(!TKA.isAdmin()) return Views.learn();
+  const a = ui.tkAdmin;
+  const head = `<div class="page-head tk-head">${tkBack}<h1>Approvals</h1></div>`;
+  if(!a || a.loading) { if(!a) setTimeout(() => Actions.tkAdminLoad(), 0); return `${head}<p class="muted">Loading…</p>`; }
+  if(a.error) return `${head}<section class="card"><p style="margin:0 0 10px">${esc(a.error)}</p><button class="btn" data-action="tkAdminLoad">Try again</button></section>`;
+  const d = a.data, when = iso => iso ? new Date(iso).toLocaleDateString("en-PH", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+  const meth = m => m === "bpi" ? "BPI" : m === "gcash" ? "GCash" : "—";
+  const pending = d.pending.map(p => `<tr>
+      <td class="calc">${esc(when(p.requested_at))}</td><td class="calc">${esc(p.name || "—")}</td><td class="calc">${esc(p.email)}</td>
+      <td class="calc">${meth(p.pay_method)}</td><td class="calc"><b>${esc(p.pay_ref || "")}</b>${p.dup ? `<small class="tk-dup">Same number already given by ${esc(p.dup)}</small>` : ""}</td>
+      <td class="calc"><span class="tk-tools"><button class="btn primary small-btn" data-action="tkAdminSet" data-email="${esc(p.email)}" data-status="active">Approve</button>
+        <button class="btn small-btn" data-action="tkAdminSet" data-email="${esc(p.email)}" data-status="signed_in" data-confirm="Mark this payment as not found? ${esc(p.email)} will be asked to check their reference number.">Not found</button></span></td>
+      <td class="x"></td></tr>`).join("");
+  const recent = d.recent.map(p => `<tr>
+      <td class="calc">${esc(when(p.approved_at))}</td><td class="calc">${esc(p.name || "—")}</td><td class="calc">${esc(p.email)}</td>
+      <td class="calc">${meth(p.pay_method)} ${esc(p.pay_ref || "")}</td>
+      <td class="calc"><button class="btn small-btn" data-action="tkAdminSet" data-email="${esc(p.email)}" data-status="removed" data-confirm="Remove access for ${esc(p.email)}? They will be told to message you.">Remove access</button></td>
+      <td class="x"></td></tr>`).join("");
+  return `${head}
+    <div class="metrics" style="margin-bottom:16px">
+      <div class="metric"><div class="label">Waiting for approval</div><div class="value num">${d.counts.pending}</div></div>
+      <div class="metric"><div class="label">Active members</div><div class="value num">${d.counts.active}</div></div>
+      <div class="metric"><div class="label">Signed in, not paid</div><div class="value num">${d.counts.signed_in}</div></div>
+    </div>
+    <div class="stack">
+      <section class="card">${tkBar("Waiting for approval", tkBtn("Refresh", "tkAdminLoad"))}
+        <p class="muted small" style="margin:0 0 10px">Find each reference number in your GCash or BPI history and check it's ${TOOLKIT.price} before approving.</p>
+        ${d.pending.length ? tkSheet(["Sent", "Name", "Email", "Method", "Reference No.", "Action"], pending, 760) : tkEmpty("No one is waiting right now.", "")}
+      </section>
+      <section class="card">${tkBar("Add a member by email")}
+        <p class="muted small" style="margin:0 0 10px">For someone who paid another way. They get access the next time they sign in with this Google account.</p>
+        <div class="le-add"><input id="tkAdminEmail" type="email" maxlength="254" placeholder="name@gmail.com" data-enter="tkAdminAddBtn" aria-label="Email to add">
+          <button class="btn" id="tkAdminAddBtn" data-action="tkAdminAdd">Give access</button></div>
+      </section>
+      <section class="card">${tkBar("Access removed")}
+        ${(d.removed || []).length ? tkSheet(["Name", "Email", "Payment", "Action"], (d.removed || []).map(p => `<tr>
+            <td class="calc">${esc(p.name || "—")}</td><td class="calc">${esc(p.email)}</td><td class="calc">${meth(p.pay_method)} ${esc(p.pay_ref || "")}</td>
+            <td class="calc"><button class="btn small-btn" data-action="tkAdminSet" data-email="${esc(p.email)}" data-status="active">Restore access</button></td>
+            <td class="x"></td></tr>`).join(""), 620) : `<p class="muted" style="margin:0">No one has had access removed.</p>`}
+      </section>
+      <section class="card">${tkBar("Recently approved")}
+        ${d.recent.length ? tkSheet(["Approved", "Name", "Email", "Payment", "Action"], recent, 700) : `<p class="muted" style="margin:0">No approvals yet.</p>`}
+      </section>
+    </div>`;
+};
+
+// A lesson: the video, what to do next, and the previous/next lesson.
+// Video ids come from the server and are only sent to members.
+Views.lesson = function(){
+  if(!TK.isMember()) return Views.learn();
+  const all = TOOLKIT.modules.flatMap(m => m.lessons.map(l => ({ ...l, module: m })));
+  const i = Math.max(0, all.findIndex(l => l.key === ui.tkLesson)), lesson = all[i];
+  const videos = TKA.state.content.videos, id = videos && videos.lessons && videos.lessons[lesson.key];
+  // Video links are signed by the server and expire after a few hours: fetch fresh ones when they run out
+  const stale = !!(videos && videos.expires && videos.expires * 1000 < Date.now() + 120000);
+  if(id && stale && navigator.onLine !== false && Date.now() - (ui.tkLinksTried || 0) > 15000){
+    ui.tkLinksTried = Date.now();
+    setTimeout(() => Actions.tkCheckLesson(), 0);
+    return `<div class="page-head tk-head">${tkBack}<h1>${esc(lesson.title)}</h1></div><p class="muted">Loading the video…</p>`;
+  }
+  const sign = videos && videos.tokens && videos.tokens[lesson.key] ? `&token=${esc(videos.tokens[lesson.key])}&expires=${esc(videos.expires)}` : "";
+  const player = id && !stale
+    ? `<div class="tk-video"><iframe src="https://player.mediadelivery.net/embed/${esc(videos.library)}/${esc(id)}?autoplay=false&preload=false&responsive=true${sign}" title="${esc(lesson.title)}" loading="lazy" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`
+    : `<div class="tk-empty"><p>${navigator.onLine === false ? "You're offline. Connect to the internet to watch this lesson." : "This lesson's video couldn't be loaded. Check your connection and try again."}</p><span class="tk-tools">${tkBtn("Try again", "tkCheckLesson")}</span></div>`;
+  const tool = lesson.module.tool && TOOLKIT.tools.find(t => t.view === lesson.module.tool);
+  const next = lesson.module.link === "manager" && CONFIG.links.toolkitMessenger
+    ? `<section class="card"><p style="margin:0 0 10px"><b>Thinking of moving to Manager.io?</b> Jesse can help you set it up for your business.</p>
+        <a class="btn tk-send" href="${esc(CONFIG.links.toolkitMessenger)}" target="_blank" rel="noopener">Message Jesse on Messenger</a></section>`
+    : tool ? `<section class="card"><p style="margin:0 0 10px"><b>Try it with your own numbers.</b> ${esc(tool.sub)}.</p>
+        <button class="btn primary" data-action="nav" data-view="${tool.view}">Open the ${esc(tool.title)}</button></section>` : "";
+  return `<div class="page-head tk-head">${tkBack}<h1>${esc(lesson.title)}</h1></div>
+    <p class="muted small" style="margin:-10px 0 4px">${esc(lesson.module.title)} · Lesson ${i + 1} of ${all.length}</p>
+    <p style="margin:0 0 12px">${esc(lesson.sub || "")}</p>
+    <div class="stack">
+      ${player}
+      ${next}
+      <div class="tk-lessonnav">
+        ${i > 0 ? `<button class="btn" data-action="tkLesson" data-key="${all[i - 1].key}">‹ ${esc(all[i - 1].title)}</button>` : "<span></span>"}
+        ${i < all.length - 1 ? `<button class="btn primary" data-action="tkLesson" data-key="${all[i + 1].key}">Next: ${esc(all[i + 1].title)} ›</button>` : ""}
+      </div>
+    </div>`;
+};
+
+// Public privacy notice, shown on its own at "?privacy" (the address given to Google for the sign-in screen)
+Views.privacy = function(){
+  const h = t => `<h2 style="margin:22px 0 8px;font-size:1.1rem">${t}</h2>`, p = t => `<p style="margin:0 0 10px">${t}</p>`;
+  return `<div class="setup" style="max-width:720px">
+    <h1>Privacy Notice</h1>
+    <p class="tag">${esc(CONFIG.appName)} and the ${esc(TOOLKIT.name)}</p>
+    <p class="muted small">Last updated: October 2026</p>
+
+    ${h("Who we are")}
+    ${p(`${esc(CONFIG.appName)} and the ${esc(TOOLKIT.name)} are run by Jesse Roy M. Alcaraz, CPA (Alcaraz Accounting), in the Philippines.`)}
+
+    ${h("Your business records stay on your device")}
+    ${p("The sales, expenses, transfers, categories and payment methods you record in the Tracker are saved in your own browser, on your own device. They are not sent to us. The same is true for everything you enter in the calculators: materials, recipes, prices and expenses.")}
+    ${p("Because they live on your device, we cannot see them or recover them for you. Please use the Back up feature regularly.")}
+
+    ${h("Anonymous usage stats (only if you agree)")}
+    ${p("If you choose to share usage stats, the app sends a short summary about once a week: how many entries you recorded, how many days you used the app, a rough size range for your monthly sales and expenses, your app version, and whether you use a phone or a computer. It never includes exact amounts, descriptions, names, or anything that identifies you. You can turn this off anytime in Settings.")}
+
+    ${h(`If you sign in to the ${esc(TOOLKIT.name)}`)}
+    ${p("Signing in with Google is only needed for the Toolkit. When you sign in, we receive and keep your Google name and email address. If you tell us you have paid, we also keep the payment method and reference number you enter.")}
+    ${p("We use these only to confirm your payment and manage your access to the Toolkit. We do not sell them or use them for advertising.")}
+
+    ${h("Services we rely on")}
+    ${p("The app is hosted by Netlify. Toolkit accounts and anonymous usage stats are stored with Supabase. Sign-in is provided by Google. Lesson videos are delivered by Bunny Stream. These providers process the data needed to deliver their part of the service.")}
+
+    ${h("Your choices")}
+    ${p("You can use the Tracker without an account. You can sign out of the Toolkit anytime. You can ask us to delete your Toolkit account details by sending us a message, and we will remove them.")}
+
+    ${h("Contact")}
+    ${p(`Questions about this notice? ${CONFIG.links.toolkitMessenger ? `<a href="${esc(CONFIG.links.toolkitMessenger)}" target="_blank" rel="noopener">Message Jesse on Messenger</a>.` : "Send us a message."}`)}
+
+    <p style="margin:26px 0 0"><a class="btn primary" href="./">Open the app</a></p>
+  </div>`;
+};
+
+Views.costing = function(){
+  if(!TK.isMember()) return Views.learn(); // tools are for members
+  const t = Store.toolkit(), d = ui.tkDraft, p = d && d.data, tab = TK.tab("costing");
+  const head = `<div class="page-head tk-head">${tkBack}${tkGetSheet(TKA.state.content.costingSheet)}<h1>Product Cost &amp; Pricing</h1></div>
+    ${tkTabs("costing", [["materials", "Raw Materials List"], ["product", "Product Cost and Pricing" + (TK.dirty() ? " •" : "")], ["summary", "Summary"]])}${tkSavedNote()}`;
+
+  if(tab === "materials"){
+    const materials = t.materials.map(m => `<tr>
+      ${tkCell(`materials.${m.id}.name`, m.name, { ph: "e.g. Flour", label: "Ingredient name" })}
+      ${tkCell(`materials.${m.id}.buyUnit`, m.buyUnit, { ph: "Pack", label: "Purchase unit" })}
+      ${tkCell(`materials.${m.id}.unit`, m.unit, { ph: "grams", label: "Unit of measure" })}
+      ${tkCell(`materials.${m.id}.packSize`, m.packSize, { num: true, ph: "1000", label: "Measurement" })}
+      ${tkCell(`materials.${m.id}.packPrice`, m.packPrice, { num: true, ph: "0.00", label: "Purchase price" })}
+      ${tkCalc(`mat.${m.id}`)}${tkX(`materials.${m.id}`, "material")}</tr>`).join("");
+    return `${head}${tkLegend}
+      <section class="card">${tkBar("Raw Materials List", t.materials.length ? TK_ADD.material : "")}
+        <p class="muted small" style="margin:0 0 10px">List what you buy, how much is in each pack, and what it costs. You do this once and reuse it in every product.</p>
+        ${!t.materials.length ? tkEmpty("No materials yet. List the ingredients and supplies you buy.", TK_ADD.material) : tkSheet(["Ingredient Name", "Purchase Unit<small>Jar, Bottle, Pack…</small>", "Unit of Measure<small>grams, ml, piece…</small>", "Measurement<small>in numbers</small>", "Purchase Price", "Unit Cost<small>auto-compute</small>"],
+          materials, 620, "material")}
+        <p class="hint">If your business is VAT-registered, enter purchase prices without VAT.</p>
+      </section>`;
+  }
+
+  if(tab === "summary"){
+    const list = t.products.map(x => ({ x, c: TK.product(x) }));
+    const anyVat = t.products.some(x => x.vat);
+    const rows = list.map(({ x, c }) => `<tr class="tap" data-action="tkPickProduct" data-id="${x.id}" role="button" tabindex="0" aria-label="Open ${esc(x.name || "product")}">
+        <td class="calc">${esc(x.name || "(unnamed)")}</td>
+        <td class="calc num">${TK.money4(c.materials / c.makes)}</td><td class="calc num">${TK.money4(c.labor / c.makes)}</td><td class="calc num">${TK.money4(c.overhead / c.makes)}</td>
+        <td class="calc num"><b>${TK.money4(c.perPiece)}</b></td><td class="calc num">${c.price > 0 ? TK.pct(c.actualMargin) : "—"}</td>
+        <td class="calc num"><b>${c.price > 0 ? peso(c.price) : "—"}</b></td>
+        ${anyVat ? `<td class="calc num">${x.vat && c.price > 0 ? peso(c.priceWithVat - c.price) : "—"}</td><td class="calc num"><b>${c.price > 0 ? peso(c.priceWithVat) : "—"}</b></td>` : ""}
+        <td class="x"></td></tr>`).join("");
+    return `${head}
+      <section class="card">${tkBar("Summary of Product Costs", tkBtn("＋ New product", "tkNewProduct"))}
+        <p class="muted small" style="margin:0 0 10px">All amounts are per piece. Tap a product to open its sheet.</p>
+        ${list.length ? tkSheet(["Product", "Materials", "Direct Labor", "Overhead", "Total Product Cost", "Margin", "Selling Price" + (anyVat ? "<small>before VAT</small>" : ""),
+            ...(anyVat ? ["12% VAT", "Price with VAT"] : [])], rows, anyVat ? 820 : 680)
+          : `<p class="muted" style="margin:0">No saved products yet.</p>`}
+      </section>`;
+  }
+
+  const matOptions = sel => `<option value="">Select…</option>` + t.materials.map(m => `<option data-mat="${m.id}" value="${m.id}" ${m.id === sel ? "selected" : ""}>${esc(m.name || "(unnamed)")}</option>`).join("");
+  // Footer rows: label spans the first columns, an optional choice sits in the 4th, the amount in the 5th
+  const foot = (label, cell, cls, mid) => `<tr class="${cls || ""}"><td class="lbl" colspan="${mid ? 3 : 4}">${label}</td>${mid || ""}${cell}<td class="x"></td></tr>`;
+  const kind = field => tkPick(`draft.${field}`, p[field], ["Fixed", "Varies with production"]);
+  const product = !p ? `<p class="muted small" style="margin:12px 0 0">Open a product from the Summary tab, or start a new one.</p>` : `
+    <div class="tk-title"><span>Item Name</span><input data-tk="draft.name" maxlength="60" placeholder="e.g. Choco Banana Muffins" value="${esc(p.name || "")}"></div>
+    ${tkBar("Recipe", TK_ADD.line, "h3")}
+    ${tkSheet(["Ingredient Name", "Unit of Measure", "Required Measurement", "Unit Cost", "Total Cost"],
+      p.lines.map(l => `<tr>
+        <td class="in"><select data-tk="draft.lines.${l.id}.materialId" aria-label="Ingredient">${matOptions(l.materialId)}</select></td>
+        ${tkCalc(`line.${l.id}.unit`, true)}
+        ${tkCell(`draft.lines.${l.id}.qty`, l.qty, { num: true, ph: "0", label: "Required measurement" })}
+        ${tkCalc(`line.${l.id}.unitCost`)}${tkCalc(`line.${l.id}.cost`)}${tkX(`draft.lines.${l.id}`, "ingredient")}</tr>`).join("")
+      + (p.lines.length ? "" : tkEmptyRow(5, "No ingredients yet. Tap Add ingredient to start the recipe."))
+      + foot("Total Materials Cost", tkCalc("materials"), "total")
+      + foot("Add: Direct Labor for this recipe — optional", tkCell(`draft.labor`, p.labor, { num: true, ph: "0.00", label: "Direct labor for this recipe" }), "", kind("laborVariable"))
+      + foot("Add: Overhead for this recipe — optional", tkCell(`draft.overhead`, p.overhead, { num: true, ph: "0.00", label: "Overhead for this recipe" }), "", kind("overheadVariable"))
+      + foot("Total Recipe Cost", tkCalc("batch"), "total")
+      + foot("This recipe makes (pieces)", tkCell(`draft.makes`, p.makes, { num: true, ph: "1", label: "Pieces this recipe makes" }))
+      + foot("Total Product Cost (per piece)", tkCalc("perPiece"), "total")
+      + foot("Desired Margin (in %)", tkCell(`draft.margin`, p.margin, { num: true, ph: "e.g. 70", label: "Desired margin in percent" }))
+      + foot(p.vat ? "Target Selling Price (before VAT)" : "Target Selling Price", tkCalc("target"), p.vat ? "total" : "key")
+      + foot("Add 12% VAT?", tkPick(`draft.vat`, p.vat, ["No", "Yes"], true))
+      + (p.vat ? foot("Add: 12% VAT", tkCalc("vat")) + foot("Target Selling Price (with VAT)", tkCalc("targetWithVat"), "key") : "")
+      + foot(`Price you will actually charge${p.vat ? " (with VAT)" : ""} — optional`, tkCell(`draft.price`, p.price, { num: true, ph: "same as target", label: "Actual selling price" }))
+      + foot("Margin at that price", tkCalc("actual")), 560, "line")}
+    <p class="hint"><b>Direct labor and overhead:</b> enter the amount for one whole recipe. Mark each as <b>Fixed</b> if you pay it whether or not you produce (monthly salaries, rent), or <b>Varies with production</b> if it only goes up when you make more (piece-rate pay, gas per batch). The Break-even tool uses this to keep fixed costs out of your contribution margin.</p>
+    <p class="form-err" id="tkErr"></p>
+    <div class="tk-actions">
+      <button type="button" class="btn primary" data-action="tkSaveProduct">Save product</button>
+      <button type="button" class="btn" data-action="tkCancelProduct">${d.id ? "Discard changes" : "Cancel"}</button>
+      <span class="muted small" data-tko="draftStatus"></span>
+      ${d.id ? `<button type="button" class="btn danger small-btn tk-del" data-action="tkRemoveProduct">Delete this product</button>` : ""}
+    </div>`;
+
+  return `${head}${tkLegend}
+    <section class="card">${tkBar("Product Cost and Pricing", tkBtn("＋ New product", "tkNewProduct"))}
+      <p class="muted small" style="margin:0 0 10px">Pick each ingredient from your list and enter how much the recipe uses. Enter your desired margin and the sheet computes your target price.</p>
+      ${product}
+    </section>`;
+};
+
+Views.breakeven = function(){
+  if(!TK.isMember()) return Views.learn();
+  const t = Store.toolkit(), b = t.bep, tab = TK.tab("breakeven");
+  const head = `<div class="page-head tk-head">${tkBack}${tkGetSheet(TKA.state.content.breakevenSheet)}<h1>Break-even &amp; Profitability</h1></div>
+    ${tkTabs("breakeven", [["profit", "Profitability"], ["bep", "Break-even Point"]])}${tkSavedNote()}`;
+
+  if(tab === "bep"){
+    const needRows = b.rows.map(r => `<tr>${tkCalc(`need.${r.id}.name`, true)}${tkCalc(`need.${r.id}.mix`)}${tkCalc(`row.${r.id}.margin`)}${tkCalc(`need.${r.id}.weighted`)}${tkCalc(`need.${r.id}.sales`)}${tkCalc(`need.${r.id}.units`)}<td class="x"></td></tr>`).join("");
+    const step = (label, key, cls) => `<tr class="${cls || ""}"><td class="lbl">${label}</td>${tkCalc(key)}<td class="x"></td></tr>`;
+    return `${head}${tkLegend}
+      <section class="card"><h2>Break-even Point Calculator</h2>
+        ${tkSheet(["Monthly Break-even Point (in sales)", "Amount"],
+          step("Total Fixed Expenses", "fixed")
+          + `<tr><td class="lbl">Add: Desired Net Profit — optional</td>${tkCell("bep.targetProfit", b.targetProfit, { num: true, ph: "0.00", label: "Desired net profit per month" })}<td class="x"></td></tr>`
+          + step("Weighted Margin of Your Products", "grossPct") + step("Less: Expenses that Vary with Sales (% of sales)", "varPct")
+          + step("Divided by: Contribution Margin", "cm", "total")
+          + `<tr class="key"><td class="lbl" data-tko="needLabel"></td>${tkCalc("needed")}<td class="x"></td></tr>`, 420)}
+        <p class="hint" data-tko="warn"></p>
+        ${needRows ? `<h3 class="sub-h" style="margin-top:18px">Per product</h3>
+          ${tkSheet(["Name of Product", "Sales Mix %", "Contribution Margin<small>in %</small>", "Weighted Margin", "Sales Needed", "Units Needed"],
+            needRows + `<tr class="total"><td class="lbl">TOTAL</td>${tkCalc("mixTotal")}<td class="calc"></td>${tkCalc("grossPct")}${tkCalc("needed")}${tkCalc("needUnits")}<td class="x"></td></tr>`, 620)}
+          <p class="muted small" style="margin:10px 0 0">This assumes you keep selling your products in the same proportions as now. Units are rounded up to whole pieces.</p>` : ""}
+      </section>`;
+  }
+
+  const calc = TK.bep();
+  const rows = b.rows.map(r => {
+    const linked = r.productId && t.products.some(x => x.id === r.productId);
+    return `<tr>
+      ${linked ? `${tkCalc(`need.${r.id}.name`, true)}${tkCalc(`row.${r.id}.cost`)}${tkCalc(`row.${r.id}.price`)}`
+               : `${tkCell(`bep.rows.${r.id}.name`, r.name, { ph: "e.g. Product A", label: "Product name" })}
+                  ${tkCell(`bep.rows.${r.id}.cost`, r.cost, { num: true, ph: "0.00", label: "Variable cost per unit" })}
+                  ${tkCell(`bep.rows.${r.id}.price`, r.price, { num: true, ph: "0.00", label: "Selling price" })}`}
+      ${tkCalc(`row.${r.id}.margin`)}
+      ${tkCell(`bep.rows.${r.id}.units`, r.units, { num: true, ph: "0", label: "Monthly sales in units" })}
+      ${tkCalc(`row.${r.id}.sales`)}${tkCalc(`row.${r.id}.cogs`)}${tkCalc(`row.${r.id}.gp`)}${tkX(`bep.rows.${r.id}`, "product")}</tr>`;
+  }).join("");
+  // Products whose costing includes fixed labor/overhead: that part must be listed as a fixed expense here
+  const withFixed = calc.rows.filter(r => r.linked && r.fixedPerPiece > 0.00005);
+
+  const expenses = b.expenses.map(e => `<tr>
+      ${tkCell(`bep.expenses.${e.id}.name`, e.name, { ph: "e.g. Rent", label: "Expense" })}
+      ${tkCell(`bep.expenses.${e.id}.amount`, e.amount, { num: true, ph: "0.00", label: "Amount per month" })}
+      ${tkPick(`bep.expenses.${e.id}.variable`, e.variable, ["Fixed", "Varies with sales"])}
+      ${tkX(`bep.expenses.${e.id}`, "expense")}</tr>`).join("");
+  const expFoot = (label, key, cls) => `<tr class="${cls || ""}"><td class="lbl">${label}</td>${tkCalc(key)}<td class="calc"></td><td class="x"></td></tr>`;
+
+  return `${head}${tkLegend}
+    <section class="card">${tkBar("Profitability Calculator", b.rows.length ? TK_ADD.row : "")}
+      <p class="muted small" style="margin:0 0 10px"><b>Variable cost per unit</b> is only what rises with every piece you make or sell: materials, packaging, piece-rate labor. Costs you pay regardless of how much you sell (salaries, rent) go in the expenses below as Fixed.</p>
+      ${!b.rows.length ? tkEmpty("No products yet. Add the products you sell to see your profitability.", TK_ADD.row) : tkSheet(["Name of Product", "Variable Cost per Unit", "Selling Price", "Contribution Margin<small>in %</small>", "Total Monthly Sales in Units", "Monthly Sales", "Monthly Variable Cost", "Contribution"],
+        rows + `
+          <tr class="total"><td class="lbl">TOTAL</td><td class="calc"></td><td class="calc"></td><td class="calc"></td>${tkCalc("units")}${tkCalc("sales")}${tkCalc("cogs")}${tkCalc("gp")}<td class="x"></td></tr>`, 780, "row")}
+      ${withFixed.length ? `<div class="tk-note"><b>Check your fixed costs.</b> In Product Cost &amp; Pricing, ${withFixed.map(r => `<b>${esc(r.name || "(unnamed)")}</b> includes ${TK.money4(r.fixedPerPiece)} per piece of fixed labor or overhead`).join("; ")}. That part is left out of the variable cost above, because it does not change with how much you sell. Make sure the same labor or overhead is in your expenses below as <b>Fixed</b>, so it is counted once.</div>` : ""}
+      ${tkBar("Less: Selling and Administrative Expenses", TK_ADD.expense + (tkTrackerMonth() ? tkBtn(`Fill from Tracker (${esc(monthLabel(tkTrackerMonth()))})`, "tkFromTracker", "", "tk-alt") : ""), "h3")}
+      <p class="muted small" style="margin:0 0 10px"><b>Fixed</b> stays the same whether you sell a lot or a little (rent, salaries). <b>Varies with sales</b> goes up as you sell more (delivery fees, commissions).</p>
+      ${tkSheet(["Expense", "Amount per Month", "Type"],
+        expenses + (b.expenses.length ? "" : tkEmptyRow(3, "No expenses yet. Add them one by one, or fill them from your Tracker records."))
+        + expFoot("Total Fixed Expenses", "fixed", "total") + expFoot("Total Expenses that Vary with Sales", "variable", "total")
+        + expFoot("Net Profit/(Loss)", "net", "key"), 440, "expense")}
+    </section>`;
+};
+
 // GCash QR lives in a separate image file next to index.html (see CONFIG.gcashQr)
 const GCASH_QR = CONFIG.gcashQr;
 
@@ -2016,6 +2938,151 @@ function buildCsv(){
    ========================================================= */
 const Actions = {
   nav: el => go(el.dataset.view),
+  // Learn tools
+  tkAdd(el){
+    const t = Store.toolkit(), id = Store.newId(), what = el.dataset.what;
+    if(what === "material") t.materials.push({ id, name: "", unit: "", packSize: 0, packPrice: 0 });
+    if(what === "product") return Actions.tkNewProduct();
+    if(what === "line" && ui.tkDraft) ui.tkDraft.data.lines.push({ id, materialId: "", qty: 0 });
+    if(what === "row") t.bep.rows.push({ id, name: "", cost: 0, price: 0, units: 0 });
+    if(what === "expense") t.bep.expenses.push({ id, name: "", amount: 0, variable: false });
+    Store.saveToolkit(); render();
+    // Put the cursor in the new row's first box
+    const boxes = document.querySelectorAll(`[data-tk*="${id}"]`); if(boxes.length) boxes[0].focus();
+  },
+  tkRemove(el){
+    const spot = TK.resolve(el.dataset.path);
+    if(!spot || !Array.isArray(spot.node)) return;
+    const i = spot.node.findIndex(x => x.id === spot.key);
+    if(i > -1) spot.node.splice(i, 1);
+    // A removed material also leaves the recipes that used it
+    if(el.dataset.path.startsWith("materials.")) Store.toolkit().products.forEach(p => { p.lines = p.lines.filter(l => l.materialId !== spot.key); });
+    if(el.dataset.path.startsWith("materials.") && ui.tkDraft) ui.tkDraft.data.lines = ui.tkDraft.data.lines.filter(l => l.materialId !== spot.key);
+    Store.saveToolkit(); render();
+  },
+  // Product sheet: Save keeps the draft, Cancel drops it
+  tkSaveProduct(){
+    const d = ui.tkDraft, t = Store.toolkit();
+    if(!d) return;
+    d.data.name = (d.data.name || "").trim();
+    if(!d.data.name){
+      document.getElementById("tkErr").textContent = "Give the product a name before saving.";
+      const box = document.querySelector('[data-tk="draft.name"]'); if(box) box.focus();
+      return;
+    }
+    if(!d.id) d.id = d.data.id = Store.newId();
+    const saved = JSON.parse(JSON.stringify(d.data));
+    const i = t.products.findIndex(x => x.id === d.id);
+    if(i > -1) t.products[i] = saved; else t.products.push(saved);
+    d.base = JSON.stringify(d.data);
+    Store.saveToolkit(); render();
+    toast(`Saved: ${d.data.name}`);
+  },
+  async tkCancelProduct(){
+    const d = ui.tkDraft;
+    if(!d || !(await TK.dropOk())) return;
+    const saved = d.id && Store.toolkit().products.find(x => x.id === d.id);
+    // A saved product goes back to its saved version; a new one is dropped
+    if(saved) TK.openDraft(saved); else { ui.tkDraft = null; ui.tkTab = { ...ui.tkTab, costing: "summary" }; }
+    render();
+  },
+  async tkRemoveProduct(){
+    const t = Store.toolkit(), d = ui.tkDraft;
+    if(!d || !d.id || !(await confirmDialog("Delete this product?", `"${d.data.name || "This product"}" and its recipe will be removed. Your materials stay.`, "Delete"))) return;
+    t.products = t.products.filter(x => x.id !== d.id);
+    t.bep.rows = t.bep.rows.filter(r => r.productId !== d.id);
+    ui.tkDraft = null; ui.tkTab = { ...ui.tkTab, costing: "summary" };
+    Store.saveToolkit(); render();
+    toast("Product deleted.");
+  },
+  // Open a saved product from the Summary
+  async tkPickProduct(el){
+    const p = Store.toolkit().products.find(x => x.id === el.dataset.id);
+    if(!p) return;
+    if(!(ui.tkDraft && ui.tkDraft.id === p.id) && !(await TK.dropOk())) return;
+    if(!(ui.tkDraft && ui.tkDraft.id === p.id)) TK.openDraft(p);
+    ui.tkTab = { ...ui.tkTab, costing: "product" }; render(); window.scrollTo(0, 0);
+  },
+  async tkNewProduct(){
+    if(!(await TK.dropOk())) return;
+    TK.openDraft(null);
+    ui.tkTab = { ...ui.tkTab, costing: "product" }; render(); window.scrollTo(0, 0);
+    const box = document.querySelector('[data-tk="draft.name"]'); if(box) box.focus();
+  },
+  tkTab(el){ ui.tkTab = { ...ui.tkTab, [el.dataset.view]: el.dataset.v }; render(); },
+  // Bring a product from Product Cost & Pricing into the break-even list (cost and price stay linked)
+  tkLink(el){
+    Store.toolkit().bep.rows.push({ id: Store.newId(), productId: el.dataset.id, units: 0 });
+    Store.saveToolkit(); render();
+  },
+  // Fill the expense list from what was recorded in the Tracker (last month, or this month if last is empty)
+  tkAddProduct: () => openProductChooser(),
+  // Toolkit home and account
+  tkLocked: () => TKA.status() === "removed" ? openToolkitRemoved() : TKA.signedIn() && !TKA.isMember() ? openToolkitPayment() : openToolkitPitch(),
+  tkLesson(el){ ui.tkLesson = el.dataset.key; if(ui.view === "lesson"){ render(); window.scrollTo(0, 0); } else go("lesson"); },  async tkCheckLesson(){ try{ await TKA.refresh(); }catch(e){ toast(navigator.onLine === false ? "You're offline." : e.message); } render(); },
+  tkOpenSheet: el => { const url = TKA.state.content[el.dataset.key]; if(url) window.open(url, "_blank", "noopener"); else toast("Connect to the internet once to load your Google Sheets."); },
+  tkPreviewMember(){ ui.tkPreviewMember = !ui.tkPreviewMember; render(); window.scrollTo(0, 0); },
+  tkSignIn(){
+    // Google refuses sign-in from inside Facebook's and Messenger's built-in browsers
+    if(isInAppBrowser) return showDialog({ title: "Open in Chrome or Safari to sign in", body: ["Google sign-in doesn't work inside Facebook's or Messenger's browser.", "Tap ⋮ or ••• at the top of this screen, choose Open in browser, then tap Continue with Google again."], primaryLabel: "OK" });
+    if(navigator.onLine === false){ toast("You're offline. Connect to the internet to sign in."); return; }
+    TKA.signIn();
+  },
+  // Just came back from Google
+  async tkAfterSignIn(){
+    // Shown in a box that stays, so the wording can be read (and reported) if sign-in fails
+    if(TKA.returnError){ go("learn"); showDialog({ title: "Sign-in didn't finish", body: [TKA.returnError, "Nothing was charged or changed. You can try again."], primaryLabel: "OK" }); return; }
+    go("learn");
+    try{ await TKA.refresh(); }catch(e){ render(); toast(e.message); return; }
+    render();
+    if(TKA.isAdmin()) Actions.tkAdminLoad().then(render);
+    if(TKA.isMember()) toast("Welcome! The Toolkit is unlocked.");
+    else if(TKA.status() === "pending") toast("Your payment is still being verified.");    else if(TKA.status() === "removed") openToolkitRemoved();
+    else openToolkitPayment();
+  },
+  async tkCheck(){
+    try{ await TKA.refresh(); }catch(e){ toast(navigator.onLine === false ? "You're offline." : e.message); return; }
+    render();
+    toast(TKA.isMember() ? "You're in! The Toolkit is unlocked." : "Not confirmed yet. Please check again later.");
+  },
+  async tkSignOut(){
+    if(!(await confirmDialog("Sign out of the Toolkit?", "Your Tracker records stay on this device. You can sign in again anytime.", "Sign out"))) return;
+    await TKA.signOut(); ui.tkAdmin = null;
+    if(TOOL_VIEWS.includes(ui.view)) go("learn"); else render();
+  },
+  async tkAdminLoad(){
+    ui.tkAdmin = { loading: true }; if(ui.view === "approvals") render();
+    try{ ui.tkAdmin = { data: await TKA.rpc("tk_admin_list") }; }
+    catch(e){ ui.tkAdmin = { error: navigator.onLine === false ? "You're offline. Connect to the internet to see approvals." : e.message }; }
+    if(ui.view === "approvals") render();
+  },
+  async tkAdminSet(el){
+    if(el.dataset.confirm && !(await confirmDialog("Are you sure?", el.dataset.confirm, "Yes"))) return;
+    try{
+      ui.tkAdmin = { data: await TKA.rpc("tk_admin_set", { p_email: el.dataset.email, p_status: el.dataset.status }) };
+      render(); toast(({ active: "Access given: ", removed: "Access removed: ", signed_in: "Sent back to payment: " })[el.dataset.status] + el.dataset.email);
+    }catch(e){ toast(e.message); }
+  },
+  async tkAdminAdd(){
+    const box = document.getElementById("tkAdminEmail"), email = box.value.trim();
+    if(!email){ toast("Enter an email first."); box.focus(); return; }
+    try{
+      ui.tkAdmin = { data: await TKA.rpc("tk_admin_set", { p_email: email, p_status: "active" }) };
+      render(); toast(`Access given: ${email.toLowerCase()}`);
+    }catch(e){ toast(e.message); }
+  },
+  async tkFromTracker(){
+    const d = Store.get(), b = Store.toolkit().bep;
+    const month = tkTrackerMonth();
+    if(!month){ toast("No expenses recorded in the Tracker yet."); return; }
+    const byCat = Calc.monthTotals(month).byCat;
+    const found = d.categories.filter(c => c.type === "expense" && byCat[c.id] > 0);
+    if(!found.length){ toast("No expenses recorded in the Tracker yet."); return; }
+    if(b.expenses.length && !(await confirmDialog("Replace your expense list?", `This replaces the list with your ${monthLabel(month)} expenses from the Tracker.`, "Replace"))) return;
+    b.expenses = found.map(c => ({ id: Store.newId() + c.id.slice(-3), name: c.name, amount: Math.round(byCat[c.id] * 100) / 100, variable: false }));
+    Store.saveToolkit(); render();
+    toast(`Filled from ${monthLabel(month)}. Mark any that vary with sales.`);
+  },
   // Usage stats choice, from the dashboard banner or the Settings switch
   statsConsent(el){
     const yes = el.type === "checkbox" ? el.checked : el.dataset.v === "yes";
@@ -2195,7 +3262,7 @@ document.addEventListener("keydown", e => {
   if(e.key === "Enter" && e.target.dataset && e.target.dataset.enter){
     e.preventDefault();
     const btn = document.getElementById(e.target.dataset.enter);
-    if(btn) Actions.addItem(btn);
+    if(btn) Actions[btn.dataset.action](btn);
   }
 });
 
@@ -2216,6 +3283,7 @@ document.getElementById("restoreFile").addEventListener("change", async e => {
    START
    ========================================================= */
 Store.init().then(async () => {
+  const backFromGoogle = TKA.takeReturn(); // must run first: it removes the sign-in tokens from the address
   // A reload keeps the browser's history entries, so reopen the view they describe
   const s = histState();
   if(s && isView(s.view) && Store.get().setupDone) ui.view = s.view;
@@ -2227,6 +3295,12 @@ Store.init().then(async () => {
   const shown = await showUpdateNotice();
   if(!shown && Store.get().setupDone) setTimeout(checkMilestones, 600);
   Stats.maybeSend();
+  // Toolkit: finish a sign-in, or quietly re-check a known member's status when online
+  if(backFromGoogle) Actions.tkAfterSignIn();
+  else if(TKA.state.session && navigator.onLine !== false) TKA.refresh().then(async () => {
+    if(TKA.isAdmin()){ await Actions.tkAdminLoad(); render(); } // for the "waiting for approval" count on the menu
+    else if(ui.view === "learn" || TOOL_VIEWS.includes(ui.view)) render();
+  }).catch(() => {});
 });
 </script>
 </body>
