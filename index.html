@@ -390,7 +390,16 @@ table.tx th.amt{text-align:right}
 .tk-payrow small{display:block;font-size:.78rem;color:var(--text-2)}
 .tk-payrow b{font-size:1.1rem}
 .tk-msg{margin:0;padding:10px 12px;border-radius:10px;background:var(--surface-2);font:inherit;font-size:.88rem;white-space:pre-wrap;overflow-wrap:anywhere}
-.tk-video{position:relative;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden}.tk-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.tk-lessonnav{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}.tk-lessonnav .btn{max-width:100%;white-space:normal;text-align:left}.tk-note{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--expense-soft);font-size:.9rem}
+.tk-video{position:relative;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden}
+.tk-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.tk-lessonnav{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+.tk-lessonnav .btn{max-width:100%;white-space:normal;text-align:left}
+.nav-badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:99px;background:var(--expense);color:#fff;font-size:.7rem;font-weight:800;line-height:1}
+.bottomnav button{position:relative}
+.bottomnav .nav-badge{position:absolute;top:4px;left:calc(50% + 6px);margin:0}
+.tk-saved{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin:0 0 12px}
+.tk-dup{display:block;color:var(--expense);font-size:.78rem;font-weight:600;white-space:normal;max-width:220px}
+.tk-note{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--expense-soft);font-size:.9rem}
 /* Spreadsheet-style tables. Light row lines only; cells you type in are tinted fields, computed cells are plain.
    They scroll sideways on small screens with the first column kept in view. */
 .tk-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -2623,7 +2632,6 @@ Views.costing = function(){
         <p class="muted small" style="margin:0 0 10px">List what you buy, how much is in each pack, and what it costs. You do this once and reuse it in every product.</p>
         ${!t.materials.length ? tkEmpty("No materials yet. List the ingredients and supplies you buy.", TK_ADD.material) : tkSheet(["Ingredient Name", "Purchase Unit<small>Jar, Bottle, Pack…</small>", "Unit of Measure<small>grams, ml, piece…</small>", "Measurement<small>in numbers</small>", "Purchase Price", "Unit Cost<small>auto-compute</small>"],
           materials, 620, "material")}
-        <p class="hint">If your business is VAT-registered, enter purchase prices without VAT.</p>
       </section>`;
   }
 
