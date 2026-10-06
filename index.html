@@ -400,6 +400,29 @@ table.tx th.amt{text-align:right}
 .tk-saved{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin:0 0 12px}
 .tk-dup{display:block;color:var(--expense);font-size:.78rem;font-weight:600;white-space:normal;max-width:220px}
 .tk-note{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--expense-soft);font-size:.9rem}
+/* Lesson cards */
+.tk-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.tk-card{display:block;text-align:left;padding:0 0 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow);overflow:hidden;color:inherit;font:inherit;cursor:pointer}
+.tk-card:hover{border-color:var(--border-strong)}
+.tk-card b{display:block;padding:10px 12px 0;font-weight:700;line-height:1.3}
+.tk-card small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;padding:4px 12px 0;font-size:.82rem;color:var(--text-2);line-height:1.4}
+.tk-thumb{position:relative;display:block;aspect-ratio:16/9;background:linear-gradient(135deg,var(--brand),#3b5b9a);overflow:hidden}
+.tk-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tk-thumb-ph{position:absolute;inset:0;display:grid;place-items:center;font-size:2.6rem;font-weight:800;color:rgba(255,255,255,.28)}
+.tk-thumb-ic{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(15,23,42,.62);color:#fff;font-size:1rem;padding-left:2px}
+.tk-seen{position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:99px;background:rgba(15,23,42,.72);color:#fff;font-size:.72rem;font-weight:700}
+@media (max-width:520px){.tk-cards{grid-template-columns:1fr 1fr;gap:10px}.tk-card b{font-size:.92rem}.tk-card small{-webkit-line-clamp:4}}
+/* Admin: manage content and activity */
+.tk-mrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 0;border-top:1px solid var(--border)}
+.tk-mrow.off .tk-mmain{opacity:.55}
+.tk-mmain{flex:1;min-width:180px}
+.tk-mmain small{display:block;font-size:.82rem;color:var(--text-2)}
+.tk-sumline{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--border)}
+.tk-days{display:flex;align-items:flex-end;gap:4px;height:120px}
+.tk-days > div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;min-width:0}
+.tk-days i{display:block;width:100%;min-height:2px;border-radius:4px 4px 0 0;background:var(--brand)}
+.tk-days span{font-size:.7rem;color:var(--text-3)}
+.dialog textarea{width:100%;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:inherit;font:inherit;resize:vertical}
 /* Spreadsheet-style tables. Light row lines only; cells you type in are tinted fields, computed cells are plain.
    They scroll sideways on small screens with the first column kept in view. */
 .tk-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -1088,7 +1111,7 @@ const NAV = [
 const IS_LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname);
 const TOOLKIT_ON = true;
 const TOOLKIT_LABEL = "Negosyo Tools"; // menu name; "Tools" is the short form for the phone's bottom bar
-const TOOL_VIEWS = ["costing", "breakeven", "approvals", "lesson"];
+const TOOL_VIEWS = ["costing", "breakeven", "approvals", "lesson", "manage", "activity"];
 if(TOOLKIT_ON) NAV.push({ view: "learn", label: TOOLKIT_LABEL, short: "Tools" });
 
 function monthNav(){
@@ -1387,6 +1410,7 @@ const Views = {
         <section class="card">
           <p class="muted small" style="margin:0">If you sign in to the ${esc(TOOLKIT.name)} with Google, we keep your Google name and email, and the payment method and reference number you submit, so we can confirm your payment and manage your access. We don't use them for anything else.</p>
           <p class="muted small" style="margin:6px 0 0"><b>Still only on this device:</b> your sales and expense records, and everything you enter in the calculators (materials, recipes, prices and expenses).</p>
+          <p class="muted small" style="margin:6px 0 0">We also count which lessons and tools get opened, as totals that are not linked to your name or email.</p>
         </section>
       </div>` : ""}
 
@@ -2351,6 +2375,7 @@ const TOOLKIT_PAY = {
 };
 
 function openToolkitPayment(){
+  TKA.log("pay_view");
   const me = TKA.state.me || {};
   let method = me.pay_method || "gcash";
   const panel = m => `<div class="tk-paypanel ${m.id === method ? "" : "hidden"}" data-pay="${m.id}">
@@ -2405,7 +2430,7 @@ function openToolkitPayment(){
     if(ref.length < 4){ err("Enter the reference number from your receipt."); form.ref.focus(); return; }
     const btn = form.querySelector('[type="submit"]'); btn.disabled = true; err("");
     try{
-      TKA.state.me = await TKA.rpc("tk_request", { p_method: method, p_ref: ref }); TKA.save();
+      TKA.state.me = await TKA.rpc("tk_request", { p_method: method, p_ref: ref }); TKA.save(); TKA.log("pay_submit");
       closeOverlay(); render();
       openToolkitPending();
     }catch(ex){ btn.disabled = false; err(navigator.onLine === false ? "You're offline. Connect to the internet and try again." : ex.message); }
@@ -2452,12 +2477,53 @@ function openToolkitRemoved(){
   ov.querySelector("#tkRemovedClose").addEventListener("click", closeOverlay);
 }
 
+// Lessons and resources come from the server, where admins manage them. The list is public
+// (titles, captions, thumbnails); what each item opens is only sent to members.
+Object.assign(TKA, {
+  async loadCatalog(){
+    const res = await fetch(`${this.cfg.url}/rest/v1/rpc/tk_catalog`, { method: "POST",
+      headers: { apikey: this.cfg.key, Authorization: `Bearer ${this.cfg.key}`, "Content-Type": "application/json" }, body: "{}" });
+    if(!res.ok) throw new Error("Could not load the Toolkit list.");
+    this.state.catalog = await res.json(); this.save();
+    return this.state.catalog;
+  },
+  // Activity totals for the admin screen: which lessons and tools get opened. Sent once per item per visit;
+  // the server keeps it as an anonymous count, not tied to a name or email.
+  logged: {},
+  log(event, item = ""){
+    if(!this.signedIn() || navigator.onLine === false || this.logged[event + ":" + item]) return;
+    this.logged[event + ":" + item] = true;
+    this.rpc("tk_log", { p_event: event, p_item: item }).catch(() => {});
+  },
+  watched(){ return this.state.watched || (this.state.watched = {}); }
+});
+
+TK.catalog = () => {
+  const c = TKA.state.catalog;
+  if(c && Array.isArray(c.modules) && c.modules.length) return {
+    modules: c.modules.map(m => ({ id: m.id, title: m.title, tool: m.tool, lessons: (m.lessons || []).map(l => ({ key: l.id, title: l.title, sub: l.caption, thumb: l.thumb })) })),
+    resources: (c.resources || []).map(r => ({ key: r.id, title: r.title, sub: r.caption }))
+  };
+  // Not loaded yet (first visit while offline): the list the app shipped with
+  return { modules: TOOLKIT.modules.map(m => ({ id: m.title, title: m.title, tool: m.tool || (m.link === "manager" ? "manager" : null), lessons: m.lessons })), resources: TOOLKIT.sheets };
+};
+
 Views.learn = function(){
   const member = TK.isMember(), me = TKA.state.me, signedIn = TKA.signedIn();
+  const cat = TK.catalog(), watched = TKA.watched();
   const mark = member ? `<span aria-hidden="true">›</span>` : `<span class="tk-lock" aria-label="Locked">🔒</span>`;
   // Members open the item; everyone else gets the offer (or the payment steps once signed in)
   const row = (title, sub, action, attrs = "") => `<button class="list-row" data-action="${member ? action : "tkLocked"}" ${member ? attrs : ""}><span><b>${esc(title)}</b>${sub ? `<small>${esc(sub)}</small>` : ""}</span>${mark}</button>`;
   const group = (label, rows) => `<div class="settings-group"><div class="group-label">${esc(label)}</div><section class="card list-card">${rows}</section></div>`;
+  // Lessons are cards with a picture from the video. The number shows until (or unless) the picture loads.
+  let n = 0;
+  const card = l => `<button class="tk-card" data-action="${member ? "tkLesson" : "tkLocked"}" ${member ? `data-key="${esc(l.key)}"` : ""}>
+      <span class="tk-thumb"><span class="tk-thumb-ph" aria-hidden="true">${++n}</span>
+        ${l.thumb ? `<img src="${esc(l.thumb)}" alt="" loading="lazy" referrerpolicy="origin" onerror="this.remove()">` : ""}
+        <span class="tk-thumb-ic" aria-hidden="true">${member ? "▶" : "🔒"}</span>
+        ${member && watched[l.key] ? `<span class="tk-seen">✓ Watched</span>` : ""}</span>
+      <b>${esc(l.title)}</b>${l.sub ? `<small>${esc(l.sub)}</small>` : ""}
+    </button>`;
 
   const banner = member ? ""
     : !signedIn ? `<section class="card tk-offer">
@@ -2481,13 +2547,18 @@ Views.learn = function(){
         <button class="btn primary" data-action="tkLocked">See how to pay</button>
       </section>`;
 
+  const waiting = ui.tkAdmin && ui.tkAdmin.data ? ui.tkAdmin.data.counts.pending : 0;
+  const adminRow = (view, title, sub) => `<button class="list-row" data-action="nav" data-view="${view}"><span><b>${title}</b><small>${sub}</small></span><span aria-hidden="true">›</span></button>`;
+
   return `<div class="page-head"><h1>${esc(TOOLKIT.name)}</h1></div>
     ${banner}
-    ${TKA.isAdmin() ? group("Admin", `<button class="list-row" data-action="nav" data-view="approvals"><span><b>Approvals</b><small>${ui.tkAdmin && ui.tkAdmin.data && ui.tkAdmin.data.counts.pending ? `${ui.tkAdmin.data.counts.pending} waiting for approval` : "Verify payments and manage members"}</small></span><span aria-hidden="true">›</span></button>`) : ""}
+    ${TKA.isAdmin() ? group("Admin", adminRow("approvals", "Approvals", waiting ? `${waiting} waiting for approval` : "Verify payments and manage members")
+      + adminRow("manage", "Manage content", "Add or change lessons, modules and resources")
+      + adminRow("activity", "Activity", "How members are using the Toolkit")) : ""}
     ${group("Calculators", TOOLKIT.tools.map(x => row(x.title, x.sub, "nav", `data-view="${x.view}"`)).join(""))}
     <div class="group-label tk-section">Lessons</div>
-    ${TOOLKIT.modules.map(m => group(m.title, m.lessons.map(l => row(l.title, l.sub, "tkLesson", `data-key="${l.key}"`)).join(""))).join("")}
-    ${group("Google Sheets", TOOLKIT.sheets.map(s => row(s.title, s.sub, "tkOpenSheet", `data-key="${s.key}"`)).join(""))}
+    ${cat.modules.map(m => `<div class="settings-group"><div class="group-label">${esc(m.title)}</div><div class="tk-cards">${m.lessons.map(card).join("")}</div></div>`).join("")}
+    ${cat.resources.length ? group("Resources", cat.resources.map(s => row(s.title, s.sub, "tkOpenSheet", `data-key="${esc(s.key)}"`)).join("")) : ""}
     ${signedIn ? `<p class="muted small" style="margin:18px 0 0">Signed in as <b>${esc(me.email)}</b>. <button class="btn small-btn" data-action="tkSignOut">Sign out</button></p>`
       : IS_LOCAL ? `<p class="muted small" style="margin:18px 0 0">Preview only (local test copy): viewing as <b>${member ? "member" : "visitor"}</b>.
           <button class="btn small-btn" data-action="tkPreviewMember">View as ${member ? "visitor" : "member"}</button></p>` : ""}`;
@@ -2545,12 +2616,13 @@ Views.approvals = function(){
 // Video ids come from the server and are only sent to members.
 Views.lesson = function(){
   if(!TK.isMember()) return Views.learn();
-  const all = TOOLKIT.modules.flatMap(m => m.lessons.map(l => ({ ...l, module: m })));
+  const all = TK.catalog().modules.flatMap(m => m.lessons.map(l => ({ ...l, module: m })));
+  if(!all.length) return Views.learn();
   const i = Math.max(0, all.findIndex(l => l.key === ui.tkLesson)), lesson = all[i];
   const videos = TKA.state.content.videos, id = videos && videos.lessons && videos.lessons[lesson.key];
   // Video links are signed by the server and expire after a few hours: fetch fresh ones when they run out
   const stale = !!(videos && videos.expires && videos.expires * 1000 < Date.now() + 120000);
-  if(id && stale && navigator.onLine !== false && Date.now() - (ui.tkLinksTried || 0) > 15000){
+  if((stale || !id) && navigator.onLine !== false && Date.now() - (ui.tkLinksTried || 0) > 15000){
     ui.tkLinksTried = Date.now();
     setTimeout(() => Actions.tkCheckLesson(), 0);
     return `<div class="page-head tk-head">${tkBack}<h1>${esc(lesson.title)}</h1></div><p class="muted">Loading the video…</p>`;
@@ -2559,8 +2631,8 @@ Views.lesson = function(){
   const player = id && !stale
     ? `<div class="tk-video"><iframe src="https://player.mediadelivery.net/embed/${esc(videos.library)}/${esc(id)}?autoplay=false&preload=false&responsive=true${sign}" title="${esc(lesson.title)}" loading="lazy" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`
     : `<div class="tk-empty"><p>${navigator.onLine === false ? "You're offline. Connect to the internet to watch this lesson." : "This lesson's video couldn't be loaded. Check your connection and try again."}</p><span class="tk-tools">${tkBtn("Try again", "tkCheckLesson")}</span></div>`;
-  const tool = lesson.module.tool && TOOLKIT.tools.find(t => t.view === lesson.module.tool);
-  const next = lesson.module.link === "manager" && CONFIG.links.toolkitMessenger
+  const tool = TOOLKIT.tools.find(t => t.view === lesson.module.tool);
+  const next = lesson.module.tool === "manager" && CONFIG.links.toolkitMessenger
     ? `<section class="card"><p style="margin:0 0 10px"><b>Thinking of moving to Manager.io?</b> Jesse can help you set it up for your business.</p>
         <a class="btn tk-send" href="${esc(CONFIG.links.toolkitMessenger)}" target="_blank" rel="noopener">Message Jesse on Messenger</a></section>`
     : tool ? `<section class="card"><p style="margin:0 0 10px"><b>Try it with your own numbers.</b> ${esc(tool.sub)}.</p>
@@ -2572,9 +2644,116 @@ Views.lesson = function(){
       ${player}
       ${next}
       <div class="tk-lessonnav">
-        ${i > 0 ? `<button class="btn" data-action="tkLesson" data-key="${all[i - 1].key}">‹ ${esc(all[i - 1].title)}</button>` : "<span></span>"}
-        ${i < all.length - 1 ? `<button class="btn primary" data-action="tkLesson" data-key="${all[i + 1].key}">Next: ${esc(all[i + 1].title)} ›</button>` : ""}
+        ${i > 0 ? `<button class="btn" data-action="tkLesson" data-key="${esc(all[i - 1].key)}">‹ ${esc(all[i - 1].title)}</button>` : "<span></span>"}
+        ${i < all.length - 1 ? `<button class="btn primary" data-action="tkLesson" data-key="${esc(all[i + 1].key)}">Next: ${esc(all[i + 1].title)} ›</button>` : ""}
       </div>
+    </div>`;
+};
+
+/* ---------- Admin: manage content (modules, lessons, resources) ---------- */
+const TK_MODULE_TOOLS = [["", "Nothing"], ["costing", "The Product Cost & Pricing Calculator"], ["breakeven", "The Break-even & Profitability Calculator"], ["manager", "Help with Manager.io (Messenger)"]];
+
+// A small pop-up form. fields: [{ name, label, type: text|textarea|select|check, value, options, ph, hint }]
+function openTkForm({ title, fields, submitLabel, onSubmit }){
+  const field = f => f.type === "check"
+    ? `<label class="check" style="margin-top:14px"><input type="checkbox" name="${f.name}" ${f.value ? "checked" : ""}> <span>${f.label}</span></label>`
+    : `<label class="field"><span>${f.label}</span>${
+        f.type === "select" ? `<select name="${f.name}">${f.options.map(([v, l]) => `<option value="${esc(v)}" ${v === (f.value || "") ? "selected" : ""}>${esc(l)}</option>`).join("")}</select>`
+        : f.type === "textarea" ? `<textarea name="${f.name}" rows="3" maxlength="300" placeholder="${esc(f.ph || "")}">${esc(f.value || "")}</textarea>`
+        : `<input name="${f.name}" maxlength="500" autocomplete="off" placeholder="${esc(f.ph || "")}" value="${esc(f.value || "")}">`
+      }${f.hint ? `<div class="hint">${f.hint}</div>` : ""}</label>`;
+  const ov = openOverlay(`<form class="dialog tk-pay" novalidate>
+    <h2>${esc(title)}</h2>
+    ${fields.map(field).join("")}
+    <p class="form-err" id="tkFormErr"></p>
+    <div class="actions"><button type="submit" class="btn primary block">${esc(submitLabel || "Save")}</button><button type="button" class="btn ghost block" id="tkFormCancel">Cancel</button></div>
+  </form>`, true);
+  overlayClose = () => closeOverlay();
+  const form = ov.querySelector("form");
+  ov.querySelector("#tkFormCancel").addEventListener("click", closeOverlay);
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const values = {};
+    fields.forEach(f => { values[f.name] = f.type === "check" ? form[f.name].checked : form[f.name].value.trim(); });
+    const btn = form.querySelector('[type="submit"]'); btn.disabled = true;
+    try{ await onSubmit(values); closeOverlay(); render(); }
+    catch(ex){ btn.disabled = false; form.querySelector("#tkFormErr").textContent = navigator.onLine === false ? "You're offline. Connect to the internet and try again." : ex.message; }
+  });
+  const first = form.querySelector("input:not([type=checkbox]), select, textarea"); if(first) first.focus();
+}
+// After any content change: keep the admin list, and refresh what this device shows as a member
+async function tkManageApply(promise){
+  ui.tkManage = { data: await promise };
+  TKA.loadCatalog().then(() => TKA.refresh()).then(render).catch(() => {});
+}
+
+Views.manage = function(){
+  if(!TKA.isAdmin()) return Views.learn();
+  const a = ui.tkManage;
+  const head = `<div class="page-head tk-head">${tkBack}<h1>Manage content</h1></div>`;
+  if(!a || a.loading){ if(!a) setTimeout(() => Actions.tkManageLoad(), 0); return `${head}<p class="muted">Loading…</p>`; }
+  if(a.error) return `${head}<section class="card"><p style="margin:0 0 10px">${esc(a.error)}</p><button class="btn" data-action="tkManageLoad">Try again</button></section>`;
+  const d = a.data;
+  const b = (label, action, what, id, extra = "", cls = "") => `<button class="btn small-btn ${cls}" data-action="${action}" data-what="${what}" data-id="${esc(id)}" ${extra}>${label}</button>`;
+  const moves = (what, id) => b("↑", "tkManageMove", what, id, 'data-dir="-1" aria-label="Move up"') + b("↓", "tkManageMove", what, id, 'data-dir="1" aria-label="Move down"');
+  const itemRow = (it, what) => `<div class="tk-mrow ${it.hidden ? "off" : ""}">
+      <div class="tk-mmain"><b>${esc(it.title)}</b>${it.hidden ? ` <span class="pill transfer">Hidden</span>` : ""}<small>${esc(it.caption || "No caption")}</small></div>
+      <span class="tk-tools">${b("Edit", "tkManageEdit", what, it.id)}${moves("item", it.id)}${b("Delete", "tkManageDelete", what, it.id, `data-name="${esc(it.title)}"`, "danger")}</span>
+    </div>`;
+  const toolLabel = t => (TK_MODULE_TOOLS.find(x => x[0] === (t || "")) || ["", ""])[1];
+
+  return `${head}
+    <p class="muted small" style="margin:-8px 0 14px">Changes show up for members right away. Lesson pictures come from Bunny automatically.</p>
+    <div class="stack">
+      ${d.modules.map(m => `<section class="card">
+        ${tkBar(esc(m.title), b("＋ Add lesson", "tkManageEdit", "lesson", "", `data-module="${esc(m.id)}"`, "primary") + b("Rename", "tkManageEdit", "module", m.id) + moves("module", m.id)
+          + (m.lessons.length ? "" : b("Delete", "tkManageDelete", "module", m.id, `data-name="${esc(m.title)}"`, "danger")))}
+        ${m.tool ? `<p class="muted small" style="margin:0 0 6px">After these lessons, members are offered: ${esc(toolLabel(m.tool))}</p>` : ""}
+        ${m.lessons.length ? m.lessons.map(l => itemRow(l, "lesson")).join("") : `<p class="muted small" style="margin:0">No lessons in this module yet. It stays hidden from members until it has one.</p>`}
+      </section>`).join("")}
+      <section class="card">${tkBar("Modules", b("＋ Add module", "tkManageEdit", "module", "", "", "primary"))}
+        <p class="muted small" style="margin:0">A module is a group of lessons, such as "Costing and pricing".</p></section>
+      <section class="card">${tkBar("Resources", b("＋ Add resource", "tkManageEdit", "resource", "", "", "primary"))}
+        <p class="muted small" style="margin:0 0 6px">Google Sheets, PDFs or any link. Members see the title and caption; only members can open the link.</p>
+        ${d.resources.length ? d.resources.map(r => itemRow(r, "resource")).join("") : `<p class="muted small" style="margin:0">No resources yet.</p>`}
+      </section>
+    </div>`;
+};
+
+/* ---------- Admin: activity totals ---------- */
+Views.activity = function(){
+  if(!TKA.isAdmin()) return Views.learn();
+  const a = ui.tkStats;
+  const head = `<div class="page-head tk-head">${tkBack}${tkBtn("Refresh", "tkStatsLoad", "", "tk-get")}<h1>Activity</h1></div>`;
+  if(!a || a.loading){ if(!a) setTimeout(() => Actions.tkStatsLoad(), 0); return `${head}<p class="muted">Loading…</p>`; }
+  if(a.error) return `${head}<section class="card"><p style="margin:0 0 10px">${esc(a.error)}</p><button class="btn" data-action="tkStatsLoad">Try again</button></section>`;
+  const d = a.data, metric = (label, v) => `<div class="metric"><div class="label">${label}</div><div class="value num">${Number(v || 0).toLocaleString("en-PH")}</div></div>`;
+  const bars = (rows, name) => {
+    if(!rows.length) return `<p class="muted small" style="margin:0">Nothing yet.</p>`;
+    const max = Math.max(...rows.map(r => r.members));
+    return `<div class="brk">${rows.map(r => `<div><div class="line"><b>${esc(name(r))}</b><span class="num">${r.members} member${r.members === 1 ? "" : "s"}</span></div>
+      <div class="bar"><i style="width:${Math.max(r.members / max * 100, 2).toFixed(1)}%"></i></div></div>`).join("")}</div>`;
+  };
+  const toolName = r => (TOOLKIT.tools.find(t => t.view === r.item) || { title: r.item }).title;
+  const dayMax = Math.max(1, ...d.daily_14d.map(x => x.members));
+  const daily = `<div class="tk-days">${d.daily_14d.map(x => `<div title="${esc(dateLabel(x.day))}: ${x.members}"><i style="height:${(x.members / dayMax * 100).toFixed(0)}%"></i><span>${Number(x.day.slice(8))}</span></div>`).join("")}</div>`;
+  return `${head}
+    <p class="muted small" style="margin:-8px 0 14px">Totals only. Each member is counted once per day for each thing they open; no names are kept with this activity.</p>
+    <div class="metrics" style="margin-bottom:16px">
+      ${metric("Active, last 7 days", d.active_7d)}${metric("Active, last 30 days", d.active_30d)}
+      ${metric("Members with access", d.members.active)}${metric("Have signed in at least once", d.members.ever_signed_in)}
+    </div>
+    <div class="stack">
+      <section class="card"><h2>Members active each day</h2><p class="muted small" style="margin:0 0 10px">Last 14 days</p>${daily}</section>
+      <section class="card"><h2>From sign-in to payment</h2><p class="muted small" style="margin:0 0 10px">Last 30 days</p>
+        <div class="tk-sumline"><span>Signed in</span><b class="num">${d.funnel_30d.signed_in}</b></div>
+        <div class="tk-sumline"><span>Opened the payment screen</span><b class="num">${d.funnel_30d.pay_view}</b></div>
+        <div class="tk-sumline"><span>Submitted a payment</span><b class="num">${d.funnel_30d.pay_submit}</b></div>
+        <div class="tk-sumline"><span>Waiting for approval now</span><b class="num">${d.members.pending}</b></div>
+      </section>
+      <section class="card"><h2>Lessons opened</h2><p class="muted small" style="margin:0 0 10px">Last 30 days. For watch time and completion, see Statistics in Bunny.</p>${bars(d.lessons_30d, r => r.title)}</section>
+      <section class="card"><h2>Calculators opened</h2><p class="muted small" style="margin:0 0 10px">Last 30 days</p>${bars(d.tools_30d, toolName)}</section>
+      <section class="card"><h2>Resources opened</h2><p class="muted small" style="margin:0 0 10px">Last 30 days</p>${bars(d.resources_30d, r => r.title)}</section>
     </div>`;
 };
 
@@ -2599,6 +2778,7 @@ Views.privacy = function(){
     ${h(`If you sign in to the ${esc(TOOLKIT.name)}`)}
     ${p("Signing in with Google is only needed for the Toolkit. When you sign in, we receive and keep your Google name and email address. If you tell us you have paid, we also keep the payment method and reference number you enter.")}
     ${p("We use these only to confirm your payment and manage your access to the Toolkit. We do not sell them or use them for advertising.")}
+    ${p("To see what is useful, we count which lessons and tools members open. These are kept as totals that are not linked to your name or email.")}
 
     ${h("Services we rely on")}
     ${p("The app is hosted by Netlify. Toolkit accounts and anonymous usage stats are stored with Supabase. Sign-in is provided by Google. Lesson videos are delivered by Bunny Stream. These providers process the data needed to deliver their part of the service.")}
@@ -2913,7 +3093,7 @@ function buildCsv(){
    ACTIONS
    ========================================================= */
 const Actions = {
-  nav: el => go(el.dataset.view),
+  nav(el){ const v = el.dataset.view; if((v === "costing" || v === "breakeven") && TKA.isMember()) TKA.log("tool", v); go(v); },
   // Learn tools
   tkAdd(el){
     const t = Store.toolkit(), id = Store.newId(), what = el.dataset.what;
@@ -2995,8 +3175,71 @@ const Actions = {
   tkAddProduct: () => openProductChooser(),
   // Toolkit home and account
   tkLocked: () => TKA.status() === "removed" ? openToolkitRemoved() : TKA.signedIn() && !TKA.isMember() ? openToolkitPayment() : openToolkitPitch(),
-  tkLesson(el){ ui.tkLesson = el.dataset.key; if(ui.view === "lesson"){ render(); window.scrollTo(0, 0); } else go("lesson"); },  async tkCheckLesson(){ try{ await TKA.refresh(); }catch(e){ toast(navigator.onLine === false ? "You're offline." : e.message); } render(); },
-  tkOpenSheet: el => { const url = TKA.state.content[el.dataset.key]; if(url) window.open(url, "_blank", "noopener"); else toast("Connect to the internet once to load your Google Sheets."); },
+  tkLesson(el){
+    ui.tkLesson = el.dataset.key;
+    if(TK.isMember()){ TKA.watched()[ui.tkLesson] = true; TKA.save(); TKA.log("lesson", ui.tkLesson); }
+    if(ui.view === "lesson"){ render(); window.scrollTo(0, 0); } else go("lesson");
+  },
+  tkOpenSheet(el){
+    const c = TKA.state.content, url = (c.resources && c.resources[el.dataset.key]) || c[el.dataset.key];
+    if(url){ TKA.log("resource", el.dataset.key); window.open(url, "_blank", "noopener"); }
+    else toast("Connect to the internet once to load this.");
+  },
+  // Admin: manage content
+  async tkManageLoad(){
+    ui.tkManage = { loading: true }; if(ui.view === "manage") render();
+    try{ ui.tkManage = { data: await TKA.rpc("tk_admin_catalog") }; }
+    catch(e){ ui.tkManage = { error: navigator.onLine === false ? "You're offline. Connect to the internet to manage content." : e.message }; }
+    if(ui.view === "manage") render();
+  },
+  async tkManageMove(el){
+    try{ await tkManageApply(TKA.rpc("tk_admin_move", { p_what: el.dataset.what, p_id: el.dataset.id, p_dir: Number(el.dataset.dir) })); render(); }
+    catch(e){ toast(e.message); }
+  },
+  tkManageEdit(el){
+    const d = ui.tkManage.data, what = el.dataset.what, id = el.dataset.id || "";
+    if(what === "module"){
+      const m = d.modules.find(x => x.id === id) || {};
+      return openTkForm({ title: id ? "Edit module" : "Add module", fields: [
+          { name: "title", label: "Module name", value: m.title, ph: "e.g. Managing your cash" },
+          { name: "tool", label: "After these lessons, offer members", type: "select", options: TK_MODULE_TOOLS, value: m.tool || "" }],
+        onSubmit: v => tkManageApply(TKA.rpc("tk_admin_save_module", { p: { id, title: v.title, tool: v.tool } })) });
+    }
+    if(what === "lesson"){
+      let it = {}, mod = el.dataset.module || "";
+      d.modules.forEach(m => m.lessons.forEach(l => { if(l.id === id){ it = l; mod = m.id; } }));
+      return openTkForm({ title: id ? "Edit lesson" : "Add lesson", fields: [
+          { name: "module_id", label: "Module", type: "select", options: d.modules.map(m => [m.id, m.title]), value: mod },
+          { name: "title", label: "Title", value: it.title, ph: "e.g. 12 – Managing Your Cash Flow" },
+          { name: "caption", label: "Caption", type: "textarea", value: it.caption, ph: "One or two sentences on what the member will learn." },
+          { name: "video", label: "Bunny video link or video ID", value: it.video_id, ph: "https://player.mediadelivery.net/play/…",
+            hint: "In Bunny, open the video and copy its link or its Video ID. Either works." },
+          { name: "hidden", label: "Hide this lesson from members for now", type: "check", value: it.hidden }],
+        onSubmit: v => tkManageApply(TKA.rpc("tk_admin_save_item", { p: { kind: "lesson", id, module_id: v.module_id, title: v.title, caption: v.caption, video: v.video, hidden: v.hidden } })) });
+    }
+    const it = d.resources.find(x => x.id === id) || {};
+    openTkForm({ title: id ? "Edit resource" : "Add resource", fields: [
+        { name: "title", label: "Title", value: it.title, ph: "e.g. Cash Flow Template" },
+        { name: "caption", label: "Caption", type: "textarea", value: it.caption, ph: "What it is and when to use it." },
+        { name: "url", label: "Link", value: it.url, ph: "https://…",
+          hint: "For a Google Sheet members should copy, end the link with /copy in place of /edit. For a PDF, paste its sharing link." },
+        { name: "hidden", label: "Hide this resource from members for now", type: "check", value: it.hidden }],
+      onSubmit: v => tkManageApply(TKA.rpc("tk_admin_save_item", { p: { kind: "resource", id, title: v.title, caption: v.caption, url: v.url, hidden: v.hidden } })) });
+  },
+  async tkManageDelete(el){
+    const what = el.dataset.what;
+    if(!(await confirmDialog(`Delete this ${what}?`, `"${el.dataset.name}" will be removed for all members. This can't be undone.`, "Delete"))) return;
+    try{
+      await tkManageApply(what === "module" ? TKA.rpc("tk_admin_delete_module", { p_id: el.dataset.id }) : TKA.rpc("tk_admin_delete_item", { p_id: el.dataset.id }));
+      render(); toast("Deleted.");
+    }catch(e){ toast(e.message); }
+  },
+  async tkStatsLoad(){
+    ui.tkStats = { loading: true }; if(ui.view === "activity") render();
+    try{ ui.tkStats = { data: await TKA.rpc("tk_admin_stats") }; }
+    catch(e){ ui.tkStats = { error: navigator.onLine === false ? "You're offline. Connect to the internet to see activity." : e.message }; }
+    if(ui.view === "activity") render();
+  },
   tkPreviewMember(){ ui.tkPreviewMember = !ui.tkPreviewMember; render(); window.scrollTo(0, 0); },
   tkSignIn(){
     // Google refuses sign-in from inside Facebook's and Messenger's built-in browsers
@@ -3011,6 +3254,7 @@ const Actions = {
     go("learn");
     try{ await TKA.refresh(); }catch(e){ render(); toast(e.message); return; }
     render();
+    TKA.log("sign_in");
     if(TKA.isAdmin()) Actions.tkAdminLoad().then(render);
     if(TKA.isMember()) toast("Welcome! The Toolkit is unlocked.");
     else if(TKA.status() === "pending") toast("Your payment is still being verified.");    else if(TKA.status() === "removed") openToolkitRemoved();
@@ -3272,6 +3516,8 @@ Store.init().then(async () => {
   Stats.maybeSend();
   // Toolkit: finish a sign-in, or quietly re-check a known member's status when online
   if(backFromGoogle) Actions.tkAfterSignIn();
+  // The public list of lessons and resources (admins can change it at any time)
+  if(navigator.onLine !== false) TKA.loadCatalog().then(() => { if(ui.view === "learn" || ui.view === "lesson") render(); }).catch(() => {});
   else if(TKA.state.session && navigator.onLine !== false) TKA.refresh().then(async () => {
     if(TKA.isAdmin()){ await Actions.tkAdminLoad(); render(); } // for the "waiting for approval" count on the menu
     else if(ui.view === "learn" || TOOL_VIEWS.includes(ui.view)) render();
